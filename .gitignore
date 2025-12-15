@@ -1,24 +1,24 @@
 # Node modules
 node_modules/
 
-# # Vendor folder
-# /vendor/
-# /public/
+# Vendor folder
+/vendor/
+/public/
 
 # Laravel environment files
-# .env
+.env
 .env.backup
 .env.production
 
 # Laravel storage & build files
-# /public/hot
-# /public/storage
+/public/hot
+/public/storage
 public_html/storage
 public_html/public
 public_html/hot
 /storage/*.key
 /storage/pail
-# /public/build
+/public/build
 
 # Laravel specific
 bootstrap/compiled.php
