@@ -183,7 +183,7 @@ return array(
     'Cron\\MinutesField' => $vendorDir . '/dragonmantank/cron-expression/src/Cron/MinutesField.php',
     'Cron\\MonthField' => $vendorDir . '/dragonmantank/cron-expression/src/Cron/MonthField.php',
     'Database\\Factories\\UserFactory' => $baseDir . '/database/factories/UserFactory.php',
-    'Database\\Seeders\\AdminSeeder' => $baseDir . '/database/seeders/AdminSeeder.php',
+    'Database\\Seeders\\AdminSuperAdminSeeder' => $baseDir . '/database/seeders/AdminSuperAdminSeeder.php',
     'Database\\Seeders\\AssignAllPermissionsToAdminRolesSeeder' => $baseDir . '/database/seeders/AssignAllPermissionsToAdminRolesSeeder.php',
     'Database\\Seeders\\BranchSeeder' => $baseDir . '/database/seeders/BranchSeeder.php',
     'Database\\Seeders\\BranchUserSeeder' => $baseDir . '/database/seeders/BranchUserSeeder.php',
