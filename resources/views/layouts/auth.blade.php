@@ -13,7 +13,8 @@
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#0d6efd">
     <!-- Styles -->
     <style>
         * {
@@ -136,6 +137,17 @@
         @yield('content')
     </div>
     @stack('scripts')
+
+    <script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('{{ asset("sw.js") }}')
+            .then(() => console.log('Service Worker Registered'))
+            .catch(err => console.log('SW Failed', err));
+    });
+}
+</script>
+
 </body>
 </html>
 
