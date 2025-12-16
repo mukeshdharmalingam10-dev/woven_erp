@@ -94,7 +94,7 @@ class CreateSuperAdmin extends Command
                 $this->info("✅ Super Admin user created successfully!");
                 $this->info("✅ Assigned to Main Branch: {$mainBranch->name}");
             } else {
-                $this->info("✅ Super Admin user created successfully!");
+            $this->info("✅ Super Admin user created successfully!");
                 $this->warn("⚠️  Main Branch (MB001) not found. Please run BranchSeeder first.");
             }
 

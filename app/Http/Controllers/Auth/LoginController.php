@@ -81,9 +81,9 @@ class LoginController extends Controller
 
         // Handle branch selection for all users (including Super Admin)
         // Super Admin should have Main Branch assigned, but can access all branches
-        $branches = $user->branches()->where('is_active', true)->get();
-        
-        if ($branches->count() === 0) {
+            $branches = $user->branches()->where('is_active', true)->get();
+            
+            if ($branches->count() === 0) {
             // If no branches assigned, try to get Main Branch for Super Admin
             if ($user->isSuperAdmin()) {
                 $mainBranch = Branch::where('code', 'MB001')->where('is_active', true)->first();
@@ -106,8 +106,8 @@ class LoginController extends Controller
                 Auth::logout();
                 return redirect()->route('login')->with('error', 'No active branches assigned to your account. Please contact administrator.');
             }
-        }
-        
+            }
+            
         // Set active branch (for Super Admin, prefer Main Branch if assigned)
         if ($branches->count() > 0) {
             $defaultBranch = $branches->firstWhere('code', 'MB001') ?? $branches->first();
@@ -116,11 +116,11 @@ class LoginController extends Controller
             \Illuminate\Support\Facades\Session::save();
         } elseif ($user->isSuperAdmin()) {
             // Super Admin fallback: get first active branch in system
-            $defaultBranch = Branch::where('is_active', true)->orderBy('id')->first();
-            if ($defaultBranch) {
-                \Illuminate\Support\Facades\Session::put('active_branch_id', $defaultBranch->id);
-                \Illuminate\Support\Facades\Session::put('active_branch_name', $defaultBranch->name);
-                \Illuminate\Support\Facades\Session::save();
+        $defaultBranch = Branch::where('is_active', true)->orderBy('id')->first();
+        if ($defaultBranch) {
+            \Illuminate\Support\Facades\Session::put('active_branch_id', $defaultBranch->id);
+            \Illuminate\Support\Facades\Session::put('active_branch_name', $defaultBranch->name);
+            \Illuminate\Support\Facades\Session::save();
             }
         }
 

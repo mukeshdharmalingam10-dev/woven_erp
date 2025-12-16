@@ -271,6 +271,25 @@
             color: #ffffff;
             font-size: 22px;
             cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        .mobile-menu-toggle:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .sidebar-overlay.active {
+            display: block;
         }
         .user-info {
             display: flex;
@@ -329,9 +348,13 @@
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
+                width: 280px;
             }
             .sidebar.open {
                 transform: translateX(0);
+            }
+            .sidebar.collapsed {
+                width: 280px;
             }
             .main-content {
                 margin-left: 0;
@@ -341,18 +364,42 @@
                 align-items: center;
                 justify-content: center;
             }
+            .sidebar-header .menu-toggle {
+                display: flex;
+            }
+            .content-area {
+                padding: 15px;
+            }
+            .top-header {
+                padding: 12px 15px;
+            }
+            .role-badge, .logout-btn span {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-menu-toggle {
+                display: none !important;
+            }
+            .sidebar-overlay {
+                display: none !important;
+            }
         }
     </style>
     @stack('styles')
 </head>
 <body>
     <div class="dashboard-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+        
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">Woven_ERP</div>
-                <button class="menu-toggle" onclick="toggleSidebar()" title="Toggle Sidebar">
-                    <i class="fas fa-bars"></i>
+                <button class="menu-toggle" id="sidebarToggleBtn" onclick="handleSidebarToggle()" title="Toggle Sidebar">
+                    <i class="fas fa-bars" id="sidebarToggleIcon"></i>
                 </button>
             </div>
             <nav class="sidebar-menu">
@@ -502,12 +549,22 @@
     </div>
 
     <script>
+        // Handle sidebar toggle - different behavior for mobile vs desktop
+        function handleSidebarToggle() {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                toggleMobileSidebar();
+            } else {
+                toggleSidebar();
+            }
+        }
+        
+        // Desktop: Toggle collapsed state (show icons only)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
-            const toggleIcon = document.querySelector('.menu-toggle i');
+            const toggleIcon = document.getElementById('sidebarToggleIcon');
             
-            // Toggle collapsed state (show icons only)
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('sidebar-collapsed');
             
@@ -519,57 +576,74 @@
                 toggleIcon.classList.remove('fa-chevron-right');
                 toggleIcon.classList.add('fa-bars');
             }
-            
-            // Remove closed class if present (for mobile)
-            sidebar.classList.remove('closed');
-            mainContent.classList.remove('expanded');
+        }
+        
+        // Mobile: Toggle drawer (open/close)
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggleIcon = document.getElementById('sidebarToggleIcon');
+            const mobileToggleIcon = document.querySelector('.mobile-menu-toggle i');
+            const isMobile = window.innerWidth <= 768;
+
+            if (!isMobile) {
+                return;
+            }
+
+            if (sidebar.classList.contains('closed') || !sidebar.classList.contains('open')) {
+                // Open drawer
+                sidebar.classList.remove('closed');
+                sidebar.classList.add('open');
+                mainContent.classList.remove('expanded');
+                if (overlay) overlay.classList.add('active');
+                // Change sidebar toggle icon to arrow/close
+                if (toggleIcon) {
+                    toggleIcon.classList.remove('fa-bars');
+                    toggleIcon.classList.add('fa-times');
+                }
+            } else {
+                // Close drawer
+                sidebar.classList.add('closed');
+                sidebar.classList.remove('open');
+                mainContent.classList.add('expanded');
+                if (overlay) overlay.classList.remove('active');
+                // Change sidebar toggle icon back to hamburger
+                if (toggleIcon) {
+                    toggleIcon.classList.remove('fa-times');
+                    toggleIcon.classList.add('fa-bars');
+                }
+            }
         }
         
         // Handle mobile view (and restore sidebar when back to desktop)
         function handleMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
             const isMobile = window.innerWidth <= 768;
             
             if (isMobile) {
-                sidebar.classList.add('closed');
-                sidebar.classList.remove('collapsed');
-                sidebar.classList.remove('open');
-                mainContent.classList.add('expanded');
-                mainContent.classList.remove('sidebar-collapsed');
+                // On mobile: start with drawer closed
+                if (!sidebar.classList.contains('open')) {
+                    sidebar.classList.add('closed');
+                    sidebar.classList.remove('collapsed');
+                    sidebar.classList.remove('open');
+                    mainContent.classList.add('expanded');
+                    if (overlay) overlay.classList.remove('active');
+                }
             } else {
-                // On desktop widths always show sidebar (unless user manually collapses it)
+                // On desktop: show sidebar normally, remove mobile classes
                 sidebar.classList.remove('closed');
                 sidebar.classList.remove('open');
                 mainContent.classList.remove('expanded');
+                if (overlay) overlay.classList.remove('active');
             }
         }
         
         // Check on load and resize
         window.addEventListener('load', handleMobileSidebar);
         window.addEventListener('resize', handleMobileSidebar);
-
-        // Mobile sidebar toggle (open/close drawer)
-        function toggleMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const isMobile = window.innerWidth <= 768;
-
-            if (!isMobile) {
-                toggleSidebar();
-                return;
-            }
-
-            if (sidebar.classList.contains('closed')) {
-                sidebar.classList.remove('closed');
-                sidebar.classList.add('open');
-                mainContent.classList.remove('expanded');
-            } else {
-                sidebar.classList.add('closed');
-                sidebar.classList.remove('open');
-                mainContent.classList.add('expanded');
-            }
-        }
 
 
         // Toggle Settings menu

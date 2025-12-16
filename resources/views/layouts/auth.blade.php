@@ -38,6 +38,21 @@
             width: 100%;
             max-width: 400px;
         }
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            .auth-container {
+                padding: 25px 20px;
+                border-radius: 8px;
+            }
+            .auth-header h1 {
+                font-size: 24px;
+            }
+            .form-group input {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
         .auth-header {
             text-align: center;
             margin-bottom: 30px;

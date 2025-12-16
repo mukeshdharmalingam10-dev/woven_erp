@@ -85,9 +85,9 @@ class OtpController extends Controller
 
         // Handle branch selection for all users (including Super Admin)
         // Super Admin should have Main Branch assigned, but can access all branches
-        $branches = $user->branches()->where('is_active', true)->get();
-        
-        if ($branches->count() === 0) {
+            $branches = $user->branches()->where('is_active', true)->get();
+            
+            if ($branches->count() === 0) {
             // If no branches assigned, try to get Main Branch for Super Admin
             if ($user->isSuperAdmin()) {
                 $mainBranch = \App\Models\Branch::where('code', 'MB001')->where('is_active', true)->first();
