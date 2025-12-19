@@ -3,12 +3,22 @@
 @section('title', 'Work Orders - Woven_ERP')
 
 @section('content')
+@php
+    $user = auth()->user();
+    $formName = $user->getFormNameFromRoute('work-orders.index');
+    $canRead = $user->canRead($formName);
+    $canWrite = $user->canWrite($formName);
+    $canDelete = $user->canDelete($formName);
+@endphp
+
 <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
         <h2 style="color: #333; font-size: 24px; margin: 0;">Work Orders</h2>
-        <a href="{{ route('work-orders.create') }}" style="padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fas fa-plus"></i> New Work Order
-        </a>
+        @if($canWrite)
+            <a href="{{ route('work-orders.create') }}" style="padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fas fa-plus"></i> New Work Order
+            </a>
+        @endif
     </div>
 
     <form method="GET" action="{{ route('work-orders.index') }}" style="margin-bottom: 20px;">
@@ -63,19 +73,25 @@
                             </td>
                             <td style="padding: 12px; text-align: center;">
                                 <div style="display: flex; gap: 8px; justify-content: center;">
-                                    <a href="{{ route('work-orders.show', $wo->id) }}" style="padding: 6px 12px; background: #17a2b8; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">
-                                        <i class="fas fa-eye"></i> View
-                                    </a>
-                                    <a href="{{ route('work-orders.edit', $wo->id) }}" style="padding: 6px 12px; background: #ffc107; color: #333; text-decoration: none; border-radius: 4px; font-size: 12px;">
-                                        <i class="fas fa-edit"></i> Edit
-                                    </a>
-                                    <form action="{{ route('work-orders.destroy', $wo->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this work order?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </form>
+                                    @if($canRead)
+                                        <a href="{{ route('work-orders.show', $wo->id) }}" style="padding: 6px 12px; background: #17a2b8; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    @endif
+                                    @if($canWrite)
+                                        <a href="{{ route('work-orders.edit', $wo->id) }}" style="padding: 6px 12px; background: #ffc107; color: #333; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    @endif
+                                    @if($canDelete)
+                                        <form action="{{ route('work-orders.destroy', $wo->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this work order?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -90,9 +106,11 @@
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No work orders found.</p>
-            <a href="{{ route('work-orders.create') }}" style="padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 500;">
-                Create First Work Order
-            </a>
+            @if($canWrite)
+                <a href="{{ route('work-orders.create') }}" style="padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 500;">
+                    Create First Work Order
+                </a>
+            @endif
         </div>
     @endif
 </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Traits\ChecksPermissions;
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -9,6 +10,8 @@ use Illuminate\View\View;
 
 class SupplierController extends Controller
 {
+    use ChecksPermissions;
+
     public function __construct()
     {
         $this->middleware('auth');
@@ -19,6 +22,7 @@ class SupplierController extends Controller
      */
     public function index(Request $request): View
     {
+        $this->checkReadPermission('suppliers');
         $user = auth()->user();
         
         $query = Supplier::query();
@@ -65,7 +69,10 @@ class SupplierController extends Controller
         
         $suppliers = $query->paginate(15)->withQueryString();
         
-        return view('masters.suppliers.index', compact('suppliers'));
+        // Pass permission flags to view
+        $permissions = $this->getPermissionFlags('suppliers');
+        
+        return view('masters.suppliers.index', compact('suppliers') + $permissions);
     }
 
     /**
@@ -73,6 +80,7 @@ class SupplierController extends Controller
      */
     public function create(): View
     {
+        $this->checkWritePermission('suppliers');
         return view('masters.suppliers.create');
     }
 
@@ -81,6 +89,7 @@ class SupplierController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->checkWritePermission('suppliers');
         $request->validate([
             'supplier_name' => 'required|string|max:255',
             'contact_name' => 'nullable|string|max:255',
@@ -197,7 +206,9 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier): View
     {
-        return view('masters.suppliers.show', compact('supplier'));
+        $this->checkReadPermission('suppliers');
+        $permissions = $this->getPermissionFlags('suppliers');
+        return view('masters.suppliers.show', compact('supplier') + $permissions);
     }
 
     /**
@@ -205,6 +216,7 @@ class SupplierController extends Controller
      */
     public function edit(Supplier $supplier): View
     {
+        $this->checkWritePermission('suppliers');
         return view('masters.suppliers.edit', compact('supplier'));
     }
 
@@ -213,6 +225,7 @@ class SupplierController extends Controller
      */
     public function update(Request $request, Supplier $supplier): RedirectResponse
     {
+        $this->checkWritePermission('suppliers');
         $request->validate([
             'supplier_name' => 'required|string|max:255',
             'contact_name' => 'nullable|string|max:255',
@@ -271,6 +284,7 @@ class SupplierController extends Controller
      */
     public function destroy(Supplier $supplier): RedirectResponse
     {
+        $this->checkDeletePermission('suppliers');
         $supplier->delete();
 
         return redirect()->route('suppliers.index')

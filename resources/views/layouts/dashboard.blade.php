@@ -408,29 +408,50 @@
                 </button>
             </div>
             <nav class="sidebar-menu">
+                @php
+                    // Ensure user roles and permissions are loaded for menu checks
+                    $user = auth()->user();
+                    if ($user) {
+                        // Always reload roles with permissions to ensure fresh data
+                        $user->load('roles.permissions');
+                    }
+                @endphp
+                
+                {{-- Dashboard - Always visible --}}
                 <a href="{{ route('dashboard') }}" class="menu-item" title="Dashboard">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
                 
-                {{-- Account Settings --}}
+                {{-- Account Settings - Always visible --}}
                 <a href="{{ route('account.change-password') }}" class="menu-item" title="Change Password">
                     <i class="fas fa-user-cog"></i>
                     <span>Account Settings</span>
                 </a>
                 
                 {{-- System Admin Menu (Super Admin only) --}}
-                @if(auth()->user()->isSuperAdmin())
+                @php
+                    $hasSystemAdminAccess = $user->isSuperAdmin() && (
+                        $user->canAccessPage('organizations.index') ||
+                        $user->canAccessPage('users.index') ||
+                        $user->canAccessPage('roles.index') ||
+                        $user->canAccessPage('permissions.index') ||
+                        $user->canAccessPage('role-permissions.select')
+                    );
+                @endphp
+                @if($hasSystemAdminAccess)
                     <div class="menu-item-header" onclick="toggleSystemAdminMenu()" id="systemAdminHeader" style="margin-top: 10px;" title="System Admin">
                         <i class="fas fa-tools menu-header-icon"></i>
                         <span>System Admin</span>
                         <i class="fas fa-chevron-down arrow"></i>
                     </div>
                     <div class="menu-sub-items" id="systemAdminMenu">
+                        @if($user->canAccessPage('organizations.index'))
                         <a href="{{ route('organizations.index') }}" class="menu-item" title="Organizations">
                             <i class="fas fa-building"></i>
                             <span>Organizations</span>
                         </a>
+                        @endif
                         
                         {{-- Branches menu item - Hidden for all users including superadmin --}}
                         <a href="{{ route('branches.index') }}" class="menu-item" title="Branches" style="display: none;">
@@ -438,125 +459,187 @@
                             <span>Branches</span>
                         </a>
                         
+                        @if($user->canAccessPage('users.index'))
                         <a href="{{ route('users.index') }}" class="menu-item" title="Users">
                             <i class="fas fa-users"></i>
                             <span>Users</span>
                         </a>
+                        @endif
                         
+                        @if($user->canAccessPage('roles.index'))
                         <a href="{{ route('roles.index') }}" class="menu-item" title="Roles">
                             <i class="fas fa-user-shield"></i>
                             <span>Roles</span>
                         </a>
+                        @endif
                         
+                        @if($user->canAccessPage('permissions.index'))
                         <a href="{{ route('permissions.index') }}" class="menu-item" title="Permissions">
                             <i class="fas fa-key"></i>
                             <span>Permissions</span>
                         </a>
+                        @endif
                         
+                        @if($user->canAccessPage('role-permissions.select'))
                         <a href="{{ route('role-permissions.select') }}" class="menu-item" title="Role Permissions">
                             <i class="fas fa-user-lock"></i>
                             <span>Role Permissions</span>
                         </a>
+                        @endif
                     </div>
                 @endif
 
                 {{-- Masters Menu --}}
+                @php
+                    $hasMastersAccess = $user->canAccessPage('suppliers.index') ||
+                        $user->canAccessPage('raw-materials.index') ||
+                        $user->canAccessPage('products.index') ||
+                        $user->canAccessPage('customers.index') ||
+                        $user->canAccessPage('employees.index');
+                @endphp
+                @if($hasMastersAccess)
                 <div class="menu-item-header" onclick="toggleMastersMenu()" id="mastersHeader" style="margin-top: 10px;" title="Masters">
                     <i class="fas fa-database menu-header-icon"></i>
                     <span>Masters</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </div>
                 <div class="menu-sub-items" id="mastersMenu">
+                        @if($user->canAccessPage('suppliers.index'))
                     <a href="{{ route('suppliers.index') }}" class="menu-item" title="Suppliers">
                         <i class="fas fa-truck"></i>
                         <span>Suppliers</span>
                     </a>
+                        @endif
+                        @if($user->canAccessPage('raw-materials.index'))
                     <a href="{{ route('raw-materials.index') }}" class="menu-item" title="Raw Materials">
                         <i class="fas fa-boxes"></i>
                         <span>Raw Materials</span>
                     </a>
+                        @endif
+                        @if($user->canAccessPage('products.index'))
                     <a href="{{ route('products.index') }}" class="menu-item" title="Products">
                         <i class="fas fa-cube"></i>
                         <span>Products</span>
                     </a>
+                        @endif
+                        @if($user->canAccessPage('customers.index'))
                     <a href="{{ route('customers.index') }}" class="menu-item" title="Customers">
                         <i class="fas fa-users"></i>
                         <span>Customers</span>
                     </a>
+                        @endif
+                        @if($user->canAccessPage('employees.index'))
                     <a href="{{ route('employees.index') }}" class="menu-item" title="Employees">
                         <i class="fas fa-user-tie"></i>
                         <span>Employees</span>
                     </a>
+                        @endif
                 </div>
+                @endif
 
                 {{-- Transaction Forms (Direct Menu Items) --}}
+                @if($user->canAccessPage('purchase-orders.index'))
                 <a href="{{ route('purchase-orders.index') }}" class="menu-item" title="Purchase Orders" style="margin-top: 10px;">
                     <i class="fas fa-file-invoice"></i>
                     <span>Purchase Orders</span>
                 </a>
+                @endif
+                @if($user->canAccessPage('material-inwards.index'))
                 <a href="{{ route('material-inwards.index') }}" class="menu-item" title="Material Inwards">
                     <i class="fas fa-arrow-down"></i>
                     <span>Material Inwards</span>
                 </a>
+                @endif
+                @if($user->canAccessPage('sales-invoices.index'))
                 <a href="{{ route('sales-invoices.index') }}" class="menu-item" title="Sales Invoices">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>Sales Invoices</span>
                 </a>
+                @endif
+                @if($user->canAccessPage('daily-expenses.index'))
                 <a href="{{ route('daily-expenses.index') }}" class="menu-item" title="Daily Expenses">
                     <i class="fas fa-money-bill-wave"></i>
                     <span>Daily Expenses</span>
                 </a>
+                @endif
+                @if($user->canAccessPage('stock-transactions.index'))
                 <a href="{{ route('stock-transactions.index') }}" class="menu-item" title="Stock Transactions">
                     <i class="fas fa-exchange-alt"></i>
                     <span>Stock Transactions</span>
                 </a>
+                @endif
 
                 {{-- Productions Menu --}}
+                @php
+                    $hasProductionsAccess = $user->canAccessPage('work-orders.index') ||
+                        $user->canAccessPage('productions.index');
+                @endphp
+                @if($hasProductionsAccess)
                 <div class="menu-item-header" onclick="toggleProductionsMenu()" id="productionsHeader" style="margin-top: 10px;" title="Productions">
                     <i class="fas fa-industry menu-header-icon"></i>
                     <span>Productions</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </div>
                 <div class="menu-sub-items" id="productionsMenu">
+                        @if($user->canAccessPage('work-orders.index'))
                     <a href="{{ route('work-orders.index') }}" class="menu-item" title="Work Orders">
                         <i class="fas fa-tasks"></i>
                         <span>Work Orders</span>
                     </a>
+                        @endif
+                        @if($user->canAccessPage('productions.index'))
                     <a href="{{ route('productions.index') }}" class="menu-item" title="Productions">
                         <i class="fas fa-industry"></i>
                         <span>Productions</span>
                     </a>
+                        @endif
                 </div>
+                @endif
 
                 {{-- CRM Menu --}}
+                @php
+                    $hasCrmAccess = $user->canAccessPage('notes.index') ||
+                        $user->canAccessPage('tasks.index');
+                @endphp
+                @if($hasCrmAccess)
                 <div class="menu-item-header" onclick="toggleCrmMenu()" id="crmHeader" style="margin-top: 10px;" title="CRM">
                     <i class="fas fa-users menu-header-icon"></i>
                     <span>CRM</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </div>
                 <div class="menu-submenu" id="crmMenu" style="display: none;">
+                        @if($user->canAccessPage('notes.index'))
                     <a href="{{ route('notes.index') }}" class="menu-item" title="Notes">
                         <i class="fas fa-sticky-note"></i>
                         <span>Notes</span>
                     </a>
+                        @endif
+                        @if($user->canAccessPage('tasks.index'))
                     <a href="{{ route('tasks.index') }}" class="menu-item" title="Tasks">
                         <i class="fas fa-tasks"></i>
                         <span>Tasks</span>
                     </a>
+                        @endif
                 </div>
+                @endif
 
                 {{-- Settings Menu (Super Admin only) --}}
-                @if(auth()->user()->isSuperAdmin())
+                @php
+                    $hasSettingsAccess = $user->isSuperAdmin() && $user->canAccessPage('company-information.index');
+                @endphp
+                @if($hasSettingsAccess)
                      <div class="menu-item-header" onclick="toggleSettingsMenu()" id="settingsHeader" style="margin-top: 10px;" title="Settings">
                          <i class="fas fa-cog menu-header-icon"></i>
                         <span>Settings</span>
                         <i class="fas fa-chevron-down arrow"></i>
                     </div>
                     <div class="menu-sub-items" id="settingsMenu">
+                        @if($user->canAccessPage('company-information.index'))
                         <a href="{{ route('company-information.index') }}" class="menu-item" title="Company Information">
                             <i class="fas fa-building"></i>
                             <span>Company Information</span>
                         </a>
+                        @endif
                     </div>
                 @endif
             </nav>

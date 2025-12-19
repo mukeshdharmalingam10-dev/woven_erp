@@ -33,6 +33,51 @@ Route::post('/logout', [App\Http\Controllers\Auth\LoginController::class, 'logou
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     
+    // Debug route to check permissions (remove after testing)
+    Route::get('/debug-permissions', function() {
+        $user = auth()->user();
+        $user->load('roles.permissions');
+        
+        $debug = [
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'has_roles' => $user->roles->isNotEmpty(),
+            'roles' => [],
+            'permission_check' => []
+        ];
+        
+        foreach ($user->roles as $role) {
+            $roleData = [
+                'role_id' => $role->id,
+                'role_name' => $role->name,
+                'permissions_count' => $role->permissions->count(),
+                'permissions' => []
+            ];
+            
+            foreach ($role->permissions as $perm) {
+                $roleData['permissions'][] = [
+                    'id' => $perm->id,
+                    'form_name' => $perm->form_name,
+                    'name' => $perm->name,
+                    'pivot_read' => $perm->pivot->read ?? 'N/A',
+                    'pivot_write' => $perm->pivot->write ?? 'N/A',
+                    'pivot_delete' => $perm->pivot->delete ?? 'N/A',
+                ];
+            }
+            
+            $debug['roles'][] = $roleData;
+        }
+        
+        // Test permission checks
+        $testForms = ['suppliers', 'customers', 'products', 'raw-materials', 'employees'];
+        foreach ($testForms as $form) {
+            $debug['permission_check'][$form] = $user->hasPermission($form, 'read');
+        }
+        
+        return response()->json($debug, 200, [], JSON_PRETTY_PRINT);
+    })->name('debug.permissions');
+    
     // User Management Routes
     Route::resource('users', App\Http\Controllers\UserController::class);
     

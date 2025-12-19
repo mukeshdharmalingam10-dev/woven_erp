@@ -96,8 +96,9 @@
                 </div>
                 <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-radius: 5px; border-left: 4px solid #ffc107;">
                     <p style="margin: 0; color: #856404; font-size: 13px;">
-                        <strong>Note:</strong> Each form (like "Units", "Customers", etc.) can have these three permission types assigned independently. 
-                        For example, a role can have Read access to "Units" but Write access to "Customers".
+                        <strong>Note:</strong> Permissions follow a hierarchy. Selecting <strong>Write</strong> automatically includes <strong>Read</strong>. 
+                        Selecting <strong>Delete</strong> automatically includes both <strong>Read</strong> and <strong>Write</strong>. 
+                        Unchecking a lower level permission will also uncheck higher level permissions.
                     </p>
                 </div>
             </div>
@@ -110,7 +111,7 @@
         </div>
     @endif
 
-    @if(isset($menus) && $menus->count() > 0)
+    @if(isset($permissionsByModule) && $permissionsByModule->count() > 0)
         <form action="{{ route('role-permissions.update', $role->id) }}" method="POST">
             @csrf
             <div style="overflow-x: auto;">
@@ -124,132 +125,80 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($menus as $menu)
-                            {{-- Menu header row (matches left sidebar section) --}}
+                        @foreach($permissionsByModule as $module => $permissions)
+                            {{-- Module header row --}}
                             <tr>
-                                <td style="padding: 10px 12px; background: #e2e8f0; font-weight: 700; color: #111827; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1;">
-                                    {{ $menu->name }}
+                                <td style="padding: 10px 12px; background: #e2e8f0; font-weight: 700; color: #111827; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1; text-transform: uppercase;">
+                                    {{ ucfirst($module) }}
                                 </td>
-                                {{-- Menu-wise select/unselect all checkboxes --}}
+                                {{-- Module-wise select/unselect all checkboxes --}}
                                 <td style="padding: 8px 12px; text-align: center; background: #e2e8f0; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1;">
                                     <input type="checkbox"
-                                           class="menu-select-all"
-                                           data-menu-id="{{ $menu->id }}"
+                                           class="module-select-all"
+                                           data-module="{{ $module }}"
                                            data-perm="read"
                                            style="width:18px; height:18px; cursor:pointer;"
-                                           title="Select/Unselect all Read for {{ $menu->name }}">
+                                           title="Select/Unselect all Read for {{ ucfirst($module) }}">
                                 </td>
                                 <td style="padding: 8px 12px; text-align: center; background: #e2e8f0; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1;">
                                     <input type="checkbox"
-                                           class="menu-select-all"
-                                           data-menu-id="{{ $menu->id }}"
+                                           class="module-select-all"
+                                           data-module="{{ $module }}"
                                            data-perm="write"
                                            style="width:18px; height:18px; cursor:pointer;"
-                                           title="Select/Unselect all Add/Edit/Update for {{ $menu->name }}">
+                                           title="Select/Unselect all Add/Edit/Update for {{ ucfirst($module) }}">
                                 </td>
                                 <td style="padding: 8px 12px; text-align: center; background: #e2e8f0; border-top: 2px solid #cbd5e1; border-bottom: 2px solid #cbd5e1;">
                                     <input type="checkbox"
-                                           class="menu-select-all"
-                                           data-menu-id="{{ $menu->id }}"
+                                           class="module-select-all"
+                                           data-module="{{ $module }}"
                                            data-perm="delete"
                                            style="width:18px; height:18px; cursor:pointer;"
-                                           title="Select/Unselect all Delete for {{ $menu->name }}">
+                                           title="Select/Unselect all Delete for {{ ucfirst($module) }}">
                                 </td>
                             </tr>
 
-                            {{-- Forms directly under this menu (no submenu) --}}
-                            @foreach($menu->forms->where('submenu_id', null) as $form)
+                            {{-- Forms under this module --}}
+                            @foreach($permissions as $permission)
                                 @php
-                                    $rp = $roleFormPermissions->get($form->id);
-                                    $permType = $rp ? (int)$rp->permission_type : null;
-                                    $readChecked   = in_array($permType, [\App\Models\RoleFormPermission::VIEW, \App\Models\RoleFormPermission::ADD_EDIT_UPDATE, \App\Models\RoleFormPermission::FULL_ACCESS], true);
-                                    $writeChecked  = in_array($permType, [\App\Models\RoleFormPermission::ADD_EDIT_UPDATE, \App\Models\RoleFormPermission::FULL_ACCESS], true);
-                                    $deleteChecked = $permType === \App\Models\RoleFormPermission::FULL_ACCESS;
+                                    $rp = $rolePermissions->get($permission->id);
+                                    // Ensure hierarchy is maintained: Delete includes Write and Read, Write includes Read
+                                    $deleteChecked = $rp && ($rp->pivot->delete ?? false);
+                                    $writeChecked  = $rp && (($rp->pivot->write ?? false) || $deleteChecked);
+                                    $readChecked   = $rp && (($rp->pivot->read ?? false) || $writeChecked || $deleteChecked);
                                 @endphp
                                 <tr style="border-bottom: 1px solid #dee2e6;">
                                     <td style="padding: 10px 12px; color: #333;">
-                                        {{ $form->name }}
+                                        {{ $permission->form_name ?? $permission->name }}
                                     </td>
                                     <td style="padding: 10px 12px; text-align:center;">
                                         <input type="checkbox"
-                                               name="form_permissions[{{ $form->id }}][read]"
+                                               name="form_permissions[{{ $permission->id }}][read]"
                                                value="1"
                                                class="perm-read"
-                                               data-menu-id="{{ $menu->id }}"
+                                               data-module="{{ $module }}"
                                                style="width:18px; height:18px; cursor:pointer;"
                                                {{ $readChecked ? 'checked' : '' }}>
                                     </td>
                                     <td style="padding: 10px 12px; text-align:center;">
                                         <input type="checkbox"
-                                               name="form_permissions[{{ $form->id }}][write]"
+                                               name="form_permissions[{{ $permission->id }}][write]"
                                                value="1"
                                                class="perm-write"
-                                               data-menu-id="{{ $menu->id }}"
+                                               data-module="{{ $module }}"
                                                style="width:18px; height:18px; cursor:pointer;"
                                                {{ $writeChecked ? 'checked' : '' }}>
                                     </td>
                                     <td style="padding: 10px 12px; text-align:center;">
                                         <input type="checkbox"
-                                               name="form_permissions[{{ $form->id }}][delete]"
+                                               name="form_permissions[{{ $permission->id }}][delete]"
                                                value="1"
                                                class="perm-delete"
-                                               data-menu-id="{{ $menu->id }}"
+                                               data-module="{{ $module }}"
                                                style="width:18px; height:18px; cursor:pointer;"
                                                {{ $deleteChecked ? 'checked' : '' }}>
                                     </td>
                                 </tr>
-                            @endforeach
-
-                            {{-- Submenus and their forms --}}
-                            @foreach($menu->submenus as $submenu)
-                                @if(trim($submenu->name) !== 'Transactions')
-                                    <tr>
-                                        <td colspan="4" style="padding: 8px 12px; background:#fafafa; font-weight:500; color:#374151; border-top:1px solid #e5e7eb;">
-                                            {{ $submenu->name }}
-                                        </td>
-                                    </tr>
-                                @endif
-                                @foreach($submenu->forms as $form)
-                                    @php
-                                        $rp = $roleFormPermissions->get($form->id);
-                                        $permType = $rp ? (int)$rp->permission_type : null;
-                                        $readChecked   = in_array($permType, [\App\Models\RoleFormPermission::VIEW, \App\Models\RoleFormPermission::ADD_EDIT_UPDATE, \App\Models\RoleFormPermission::FULL_ACCESS], true);
-                                        $writeChecked  = in_array($permType, [\App\Models\RoleFormPermission::ADD_EDIT_UPDATE, \App\Models\RoleFormPermission::FULL_ACCESS], true);
-                                        $deleteChecked = $permType === \App\Models\RoleFormPermission::FULL_ACCESS;
-                                    @endphp
-                                    <tr style="border-bottom: 1px solid #dee2e6;">
-                                        <td style="padding: 10px 12px; color: #333;">
-                                            {{ $form->name }}
-                                        </td>
-                                        <td style="padding: 10px 12px; text-align:center;">
-                                            <input type="checkbox"
-                                                   name="form_permissions[{{ $form->id }}][read]"
-                                                   value="1"
-                                                   class="perm-read"
-                                                   data-menu-id="{{ $menu->id }}"
-                                                   style="width:18px; height:18px; cursor:pointer;"
-                                                   {{ $readChecked ? 'checked' : '' }}>
-                                        </td>
-                                        <td style="padding: 10px 12px; text-align:center;">
-                                            <input type="checkbox"
-                                                   name="form_permissions[{{ $form->id }}][write]"
-                                                   value="1"
-                                                   class="perm-write"
-                                                   data-menu-id="{{ $menu->id }}"
-                                                   style="width:18px; height:18px; cursor:pointer;"
-                                                   {{ $writeChecked ? 'checked' : '' }}>
-                                        </td>
-                                        <td style="padding: 10px 12px; text-align:center;">
-                                            <input type="checkbox"
-                                                   name="form_permissions[{{ $form->id }}][delete]"
-                                                   value="1"
-                                                   class="perm-delete"
-                                                   data-menu-id="{{ $menu->id }}"
-                                                   style="width:18px; height:18px; cursor:pointer;"
-                                                   {{ $deleteChecked ? 'checked' : '' }}>
-                                        </td>
-                                    </tr>
-                                @endforeach
                             @endforeach
                         @endforeach
                     </tbody>
@@ -267,7 +216,7 @@
         </form>
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
-            <p style="font-size: 18px; margin-bottom: 20px;">No forms found. Please run the MenuFormSeeder.</p>
+            <p style="font-size: 18px; margin-bottom: 20px;">No permissions/forms found. Please add forms in the Permissions section.</p>
         </div>
     @endif
 </div>
@@ -276,65 +225,108 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Menu-level select/unselect all
-        document.querySelectorAll('.menu-select-all').forEach(function (headerCheckbox) {
+        /**
+         * Enforce hierarchical permission logic:
+         * - Read: View only
+         * - Write: Automatically includes Read (view + edit/add)
+         * - Delete: Automatically includes Read + Write (full access)
+         */
+
+        // Function to handle permission hierarchy for a single row
+        function updatePermissionHierarchy(checkbox) {
+            const row = checkbox.closest('tr');
+            if (!row) return;
+
+            const readCheckbox = row.querySelector('.perm-read');
+            const writeCheckbox = row.querySelector('.perm-write');
+            const deleteCheckbox = row.querySelector('.perm-delete');
+
+            if (checkbox.classList.contains('perm-read')) {
+                // If Read is unchecked, uncheck Write and Delete
+                if (!checkbox.checked) {
+                    if (writeCheckbox) writeCheckbox.checked = false;
+                    if (deleteCheckbox) deleteCheckbox.checked = false;
+                }
+            } else if (checkbox.classList.contains('perm-write')) {
+                // If Write is checked, automatically check Read
+                // If Write is unchecked, uncheck Delete
+                if (checkbox.checked) {
+                    if (readCheckbox) readCheckbox.checked = true;
+                } else {
+                    if (deleteCheckbox) deleteCheckbox.checked = false;
+                }
+            } else if (checkbox.classList.contains('perm-delete')) {
+                // If Delete is checked, automatically check Read and Write
+                // If Delete is unchecked, no automatic changes needed
+                if (checkbox.checked) {
+                    if (readCheckbox) readCheckbox.checked = true;
+                    if (writeCheckbox) writeCheckbox.checked = true;
+                }
+            }
+        }
+
+        // Module-level select/unselect all with hierarchy
+        document.querySelectorAll('.module-select-all').forEach(function (headerCheckbox) {
             headerCheckbox.addEventListener('change', function () {
-                const menuId = this.getAttribute('data-menu-id');
+                const module = this.getAttribute('data-module');
                 const perm = this.getAttribute('data-perm'); // read/write/delete
                 const checked = this.checked;
 
-                document.querySelectorAll('.perm-' + perm + '[data-menu-id="' + menuId + '"]').forEach(function (cb) {
+                // Find all checkboxes in this module for the selected permission type
+                const moduleCheckboxes = document.querySelectorAll('.perm-' + perm + '[data-module="' + module + '"]');
+                
+                moduleCheckboxes.forEach(function (cb) {
                     cb.checked = checked;
-
-                    if (checked) {
-                        // Ensure only one permission type per row when using menu-level checkbox
-                        const row = cb.closest('tr');
-                        if (!row) return;
-                        ['read', 'write', 'delete'].forEach(function (p) {
-                            if (p !== perm) {
-                                const other = row.querySelector('.perm-' + p + '[data-menu-id="' + menuId + '"]');
-                                if (other) {
-                                    other.checked = false;
-                                }
-                            }
-                        });
-                    }
+                    // Apply hierarchy logic for each checkbox
+                    updatePermissionHierarchy(cb);
                 });
 
-                // When a menu-level permission is checked, uncheck the other menu-level permissions
-                if (checked) {
-                    document.querySelectorAll('.menu-select-all[data-menu-id="' + menuId + '"]').forEach(function (otherHeader) {
-                        if (otherHeader !== headerCheckbox) {
-                            otherHeader.checked = false;
-                        }
-                    });
+                // Update module header checkboxes to reflect state
+                updateModuleHeaderState(module);
+            });
+        });
+
+        // Row-level permission checkboxes with hierarchy
+        document.querySelectorAll('.perm-read, .perm-write, .perm-delete').forEach(function (input) {
+            input.addEventListener('change', function () {
+                updatePermissionHierarchy(this);
+                // Update module header state after individual checkbox change
+                const module = this.getAttribute('data-module');
+                if (module) {
+                    updateModuleHeaderState(module);
                 }
             });
         });
 
-        // Row-level exclusivity: only one of read/write/delete can be selected at a time
-        document.querySelectorAll('.perm-read, .perm-write, .perm-delete').forEach(function (input) {
-            input.addEventListener('change', function () {
-                if (!this.checked) {
-                    return; // only react when checkbox is turned on
+        // Function to update module header checkbox states
+        function updateModuleHeaderState(module) {
+            ['read', 'write', 'delete'].forEach(function (perm) {
+                const headerCheckbox = document.querySelector('.module-select-all[data-module="' + module + '"][data-perm="' + perm + '"]');
+                if (!headerCheckbox) return;
+
+                const moduleCheckboxes = document.querySelectorAll('.perm-' + perm + '[data-module="' + module + '"]');
+                const checkedCount = Array.from(moduleCheckboxes).filter(cb => cb.checked).length;
+                
+                // Set header checkbox to checked if all are checked, indeterminate if some, unchecked if none
+                if (checkedCount === 0) {
+                    headerCheckbox.checked = false;
+                    headerCheckbox.indeterminate = false;
+                } else if (checkedCount === moduleCheckboxes.length) {
+                    headerCheckbox.checked = true;
+                    headerCheckbox.indeterminate = false;
+                } else {
+                    headerCheckbox.checked = false;
+                    headerCheckbox.indeterminate = true;
                 }
-
-                let perm = 'read';
-                if (this.classList.contains('perm-write')) perm = 'write';
-                if (this.classList.contains('perm-delete')) perm = 'delete';
-
-                const row = this.closest('tr');
-                if (!row) return;
-
-                ['read', 'write', 'delete'].forEach(function (p) {
-                    if (p !== perm) {
-                        const other = row.querySelector('.perm-' + p);
-                        if (other) {
-                            other.checked = false;
-                        }
-                    }
-                });
             });
+        }
+
+        // Initialize module header states on page load
+        document.querySelectorAll('[data-module]').forEach(function (el) {
+            const module = el.getAttribute('data-module');
+            if (module) {
+                updateModuleHeaderState(module);
+            }
         });
     });
 </script>

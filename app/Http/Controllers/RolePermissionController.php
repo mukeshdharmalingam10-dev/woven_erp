@@ -8,6 +8,7 @@ use App\Models\RoleFormPermission;
 use App\Models\Permission;
 use App\Models\RolePermissionAudit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class RolePermissionController extends Controller
 {
@@ -109,22 +110,30 @@ class RolePermissionController extends Controller
             abort(403, 'Super Admin role has access to all forms by default and cannot be modified.');
         }
         
-        // Load all active menus with submenus and forms (new Menu/Submenu/Form structure)
-        $menus = Menu::with(['submenus' => function ($q) {
-                $q->where('is_active', true)->orderBy('name');
-            }, 'forms' => function ($q) {
-                $q->where('is_active', true)->orderBy('name');
-            }, 'submenus.forms' => function ($q) {
-                $q->where('is_active', true)->orderBy('name');
-            }])
-            ->where('is_active', true)
-            ->orderBy('name')
-                ->get();
-
-        // Load existing form permissions for this role, key by form_id
-        $roleFormPermissions = RoleFormPermission::where('role_id', $role->id)
+        // Define module order
+        $moduleOrder = [
+            'System Admin',
+            'Settings',
+            'Company-info',
+            'Customer-complaints',
+            'Masters',
+            'Transactions',
+            'Productions',
+            'CRM'
+        ];
+        
+        // Load all permissions from permissions table grouped by module
+        $permissions = Permission::where('is_active', true)
+            ->orderBy('form_name')
             ->get()
-            ->keyBy('form_id');
+            ->groupBy('module')
+            ->sortBy(function ($group, $key) use ($moduleOrder) {
+                $index = array_search($key, $moduleOrder);
+                return $index !== false ? $index : 999; // Put unknown modules at the end
+            });
+
+        // Load existing permissions for this role from role_permission table
+        $rolePermissions = $role->permissions()->get()->keyBy('id');
 
         // Roles for dropdown (still exclude Super Admin)
         $allRoles = Role::orderBy('name')->get()->filter(function ($r) use ($role) {
@@ -136,8 +145,8 @@ class RolePermissionController extends Controller
 
         return view('masters.roles.permissions', [
             'role'               => $role,
-            'menus'              => $menus,
-            'roleFormPermissions'=> $roleFormPermissions,
+            'permissionsByModule'=> $permissions,
+            'rolePermissions'    => $rolePermissions,
             'allRoles'           => $allRoles,
         ]);
     }
@@ -149,46 +158,39 @@ class RolePermissionController extends Controller
             abort(403, 'Super Admin role has access to all forms by default and cannot be modified.');
         }
         
-        // Expecting input array: form_permissions[form_id][read|write|delete] = 1/0
+        // Expecting input array: form_permissions[permission_id][read|write|delete] = 1/0
         $data = $request->input('form_permissions', []);
         
-        $submittedFormIds = array_keys($data);
+        $submittedPermissionIds = array_keys($data);
+        $syncData = [];
 
-        foreach ($data as $formId => $flags) {
+        foreach ($data as $permissionId => $flags) {
             $read   = !empty($flags['read']);
             $write  = !empty($flags['write']);
             $delete = !empty($flags['delete']);
             
-            if (!$read && !$write && !$delete) {
-                // No access selected -> remove any existing permission
-                RoleFormPermission::where('role_id', $role->id)
-                    ->where('form_id', $formId)
-                    ->delete();
-                continue;
+            // Enforce hierarchical permission logic:
+            // - Write automatically includes Read (view + edit/add)
+            // - Delete automatically includes Read + Write (full access)
+            if ($write) {
+                $read = true; // Write permission includes Read
             }
-
-            // Map checkbox combination to composite permission_type
             if ($delete) {
-                $permissionType = RoleFormPermission::FULL_ACCESS;
-            } elseif ($write) {
-                $permissionType = RoleFormPermission::ADD_EDIT_UPDATE;
-            } else {
-                // Only read checked
-                $permissionType = RoleFormPermission::VIEW;
+                $read = true;  // Delete permission includes Read
+                $write = true; // Delete permission includes Write
             }
-
-            RoleFormPermission::updateOrCreate(
-                ['role_id' => $role->id, 'form_id' => $formId],
-                ['permission_type' => $permissionType]
-            );
+            
+            if ($read || $write || $delete) {
+                $syncData[$permissionId] = [
+                    'read' => $read ? 1 : 0,
+                    'write' => $write ? 1 : 0,
+                    'delete' => $delete ? 1 : 0,
+                ];
+            }
         }
 
-        // Any existing permissions for forms not present in submitted data are removed (no access)
-        if (!empty($submittedFormIds)) {
-            RoleFormPermission::where('role_id', $role->id)
-                ->whereNotIn('form_id', $submittedFormIds)
-                ->delete();
-        }
+        // Sync permissions - this will add/update/remove as needed
+        $role->permissions()->sync($syncData);
 
         return redirect()
             ->route('role-permissions.edit', $role->id)
