@@ -56,7 +56,7 @@
 
     <div style="background: #e7f3ff; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #667eea;">
         <div style="display: flex; align-items: start; gap: 10px;">
-            <i class="fas fa-info-circle" style="color: #667eea; font-size: 20px; margin-top: 2px;"></i>
+            <i class="fas fa-info-circle" style="color: #667eea; font-size: 20px; margin-top: 2px;"z></i>
             <div style="flex: 1;">
                 <strong style="color: #333; display: block; margin-bottom: 8px; font-size: 16px;">Permission Types Explained:</strong>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 10px;">

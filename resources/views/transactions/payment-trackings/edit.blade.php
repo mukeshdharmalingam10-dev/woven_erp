@@ -61,12 +61,24 @@
                         <i class="fas fa-info-circle"></i> No unpaid or partially paid invoices found for this customer.
                     </span>
                 </div>
-                <div id="invoice-info" style="margin-top: 10px; padding: 10px; background: #e7f3ff; border-radius: 5px; display: none;">
-                    <div style="font-size: 13px; color: #333;">
-                        <strong>Invoice Date:</strong> <span id="invoice-date"></span><br>
-                        <strong>Invoice Total:</strong> ₹<span id="invoice-total"></span><br>
-                        <strong>Total Paid:</strong> ₹<span id="total-paid"></span><br>
-                        <strong>Balance:</strong> ₹<span id="invoice-balance" style="font-weight: 600; color: #dc3545;"></span>
+                <div id="invoice-info" style="margin-top: 10px; padding: 15px; background: #e7f3ff; border-radius: 5px; display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; color: #333;">
+                        <div>
+                            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Invoice Date</label>
+                            <p style="color: #333; font-size: 14px; margin: 0; font-weight: 500;"><span id="invoice-date"></span></p>
+                        </div>
+                        <div>
+                            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Invoice Total</label>
+                            <p style="color: #333; font-size: 14px; margin: 0; font-weight: 500;">₹<span id="invoice-total"></span></p>
+                        </div>
+                        <div>
+                            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Total Paid</label>
+                            <p style="color: #333; font-size: 14px; margin: 0; font-weight: 500;">₹<span id="total-paid"></span></p>
+                        </div>
+                        <div>
+                            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Balance</label>
+                            <p style="color: #dc3545; font-size: 14px; margin: 0; font-weight: 600;">₹<span id="invoice-balance"></span></p>
+                        </div>
                     </div>
                 </div>
                 @error('sales_invoice_id')

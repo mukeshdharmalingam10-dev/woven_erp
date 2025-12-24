@@ -55,6 +55,26 @@ class PaymentTrackingController extends Controller
         }
         
         $paymentTrackings = $query->paginate(15)->withQueryString();
+        
+        // Calculate invoice totals, total paid, and balance for each payment
+        $paymentTrackings->getCollection()->transform(function($payment) {
+            $invoice = $payment->salesInvoice;
+            if ($invoice) {
+                $totalPaid = PaymentTracking::where('sales_invoice_id', $invoice->id)
+                    ->sum('payment_amount');
+                $balance = $invoice->grand_total - $totalPaid;
+                
+                $payment->invoice_total = $invoice->grand_total;
+                $payment->total_paid = $totalPaid;
+                $payment->balance = $balance;
+            } else {
+                $payment->invoice_total = 0;
+                $payment->total_paid = 0;
+                $payment->balance = 0;
+            }
+            return $payment;
+        });
+        
         $permissions = $this->getPermissionFlags('payment-trackings');
         
         return view('transactions.payment-trackings.index', compact('paymentTrackings') + $permissions);
@@ -67,7 +87,15 @@ class PaymentTrackingController extends Controller
     {
         $this->checkWritePermission('payment-trackings');
         
-        $customers = Customer::orderBy('customer_name')->get();
+        // Get only customers who have unpaid or partially paid invoices
+        $customers = Customer::whereHas('salesInvoices', function($query) {
+            $query->whereRaw('(
+                SELECT COALESCE(SUM(payment_amount), 0)
+                FROM payment_trackings
+                WHERE payment_trackings.sales_invoice_id = sales_invoices.id
+                AND payment_trackings.deleted_at IS NULL
+            ) < sales_invoices.grand_total');
+        })->orderBy('customer_name')->get();
         
         return view('transactions.payment-trackings.create', compact('customers'));
     }
@@ -143,7 +171,20 @@ class PaymentTrackingController extends Controller
     {
         $this->checkWritePermission('payment-trackings');
         
-        $customers = Customer::orderBy('customer_name')->get();
+        // Get customers who have unpaid or partially paid invoices
+        // Also include the current customer (even if all invoices are paid) for edit mode
+        $customers = Customer::where(function($query) use ($paymentTracking) {
+            $query->whereHas('salesInvoices', function($q) {
+                $q->whereRaw('(
+                    SELECT COALESCE(SUM(payment_amount), 0)
+                    FROM payment_trackings
+                    WHERE payment_trackings.sales_invoice_id = sales_invoices.id
+                    AND payment_trackings.deleted_at IS NULL
+                ) < sales_invoices.grand_total');
+            })
+            ->orWhere('id', $paymentTracking->customer_id); // Include current customer
+        })->orderBy('customer_name')->get();
+        
         $paymentTracking->load('salesInvoice');
         
         return view('transactions.payment-trackings.edit', compact('paymentTracking', 'customers'));

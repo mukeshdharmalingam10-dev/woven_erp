@@ -63,4 +63,12 @@ class Customer extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * Get the sales invoices for the customer.
+     */
+    public function salesInvoices()
+    {
+        return $this->hasMany(SalesInvoice::class);
+    }
+
 }
