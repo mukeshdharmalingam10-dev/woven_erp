@@ -713,14 +713,14 @@
                     <span>Payment Tracking</span>
                 </a>
                 @endif
-                {{-- Stock Menu --}}
+                {{-- Store Menu --}}
                 @php
                     $hasStockAccess = $user->canAccessPage('stock-transactions.index');
                 @endphp
                 @if($hasStockAccess)
-                <div class="menu-item-header" onclick="toggleStockMenu()" id="stockHeader" style="margin-top: 10px;" title="Stock">
+                <div class="menu-item-header" onclick="toggleStockMenu()" id="stockHeader" style="margin-top: 10px;" title="Store">
                     <i class="fas fa-boxes menu-header-icon"></i>
-                    <span>Stock</span>
+                    <span>Store</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </div>
                 <div class="menu-sub-items" id="stockMenu">
@@ -1097,7 +1097,7 @@
             }
         }
 
-        // Toggle Stock menu
+        // Toggle Store menu
         function toggleStockMenu() {
             const stockMenu = document.getElementById('stockMenu');
             const stockHeader = document.getElementById('stockHeader');
@@ -1197,7 +1197,7 @@
                 }
             }
 
-            // Stock menu
+            // Store menu
             const stockSavedState = localStorage.getItem('stockMenuCollapsed');
             if (stockSavedState === 'true') {
                 const stockMenu = document.getElementById('stockMenu');
