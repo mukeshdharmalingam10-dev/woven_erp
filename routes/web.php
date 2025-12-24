@@ -145,6 +145,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('sales-invoices', App\Http\Controllers\SalesInvoiceController::class);
     Route::get('sales-invoices/{sales_invoice}/print', [App\Http\Controllers\SalesInvoiceController::class, 'print'])->name('sales-invoices.print');
     
+    // Payment Tracking
+    Route::get('payment-trackings/get-invoices', [App\Http\Controllers\PaymentTrackingController::class, 'getInvoices'])->name('payment-trackings.get-invoices');
+    Route::resource('payment-trackings', App\Http\Controllers\PaymentTrackingController::class);
+    
     
     // Daily Expense
     Route::resource('petty-cash', App\Http\Controllers\PettyCashController::class);

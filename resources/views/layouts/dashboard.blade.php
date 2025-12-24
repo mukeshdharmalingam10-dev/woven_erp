@@ -696,6 +696,12 @@
                     <span>Sales Invoices</span>
                 </a>
                 @endif
+                @if($user->canAccessPage('payment-trackings.index'))
+                <a href="{{ route('payment-trackings.index') }}" class="menu-item" title="Payment Tracking">
+                    <i class="fas fa-money-check-alt"></i>
+                    <span>Payment Tracking</span>
+                </a>
+                @endif
                 {{-- Stock Menu --}}
                 @php
                     $hasStockAccess = $user->canAccessPage('stock-transactions.index');
