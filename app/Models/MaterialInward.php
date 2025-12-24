@@ -14,6 +14,7 @@ class MaterialInward extends Model
         'inward_number',
         'received_date',
         'supplier_id',
+        'purchase_order_id',
         'remarks',
         'total_amount',
         'organization_id',
@@ -29,6 +30,11 @@ class MaterialInward extends Model
     public function supplier()
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function purchaseOrder()
+    {
+        return $this->belongsTo(PurchaseOrder::class);
     }
 
     public function items()

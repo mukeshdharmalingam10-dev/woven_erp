@@ -9,7 +9,7 @@
                style="width: 100%; max-width: 300px; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
         <div>
             <label for="received_date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Received Date <span style="color:red">*</span></label>
             <input type="date" name="received_date" id="received_date" required
@@ -33,6 +33,23 @@
                 @endforeach
             </select>
             @error('supplier_id')
+                <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div>
+            <label for="purchase_order_id" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Purchase Order</label>
+            <select name="purchase_order_id" id="purchase_order_id"
+                    style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">-- Select Purchase Order --</option>
+                @foreach($purchaseOrders as $purchaseOrder)
+                    <option value="{{ $purchaseOrder->id }}"
+                        {{ old('purchase_order_id', $editing ? $materialInward->purchase_order_id : '') == $purchaseOrder->id ? 'selected' : '' }}>
+                        {{ $purchaseOrder->po_number }}
+                    </option>
+                @endforeach
+            </select>
+            @error('purchase_order_id')
                 <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
             @enderror
         </div>

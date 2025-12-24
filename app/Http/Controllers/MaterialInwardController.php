@@ -6,6 +6,7 @@ use App\Models\MaterialInward;
 use App\Models\MaterialInwardItem;
 use App\Models\Supplier;
 use App\Models\RawMaterial;
+use App\Models\PurchaseOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -35,8 +36,9 @@ class MaterialInwardController extends Controller
     {
         $suppliers = Supplier::orderBy('supplier_name')->get();
         $rawMaterials = RawMaterial::orderBy('raw_material_name')->get();
+        $purchaseOrders = PurchaseOrder::orderBy('po_number')->get();
 
-        return view('transactions.material-inwards.create', compact('suppliers', 'rawMaterials'));
+        return view('transactions.material-inwards.create', compact('suppliers', 'rawMaterials', 'purchaseOrders'));
     }
 
     public function store(Request $request)
@@ -52,6 +54,7 @@ class MaterialInwardController extends Controller
             'inward_number' => $inwardNumber,
             'received_date' => $data['received_date'],
             'supplier_id' => $data['supplier_id'],
+            'purchase_order_id' => $data['purchase_order_id'] ?? null,
             'remarks' => $data['remarks'] ?? null,
             'total_amount' => $totalAmount,
         ]);
@@ -86,7 +89,7 @@ class MaterialInwardController extends Controller
 
     public function show(MaterialInward $materialInward)
     {
-        $materialInward->load(['supplier', 'items.rawMaterial']);
+        $materialInward->load(['supplier', 'purchaseOrder', 'items.rawMaterial']);
         return view('transactions.material-inwards.show', compact('materialInward'));
     }
 
@@ -94,10 +97,11 @@ class MaterialInwardController extends Controller
     {
         $suppliers = Supplier::orderBy('supplier_name')->get();
         $rawMaterials = RawMaterial::orderBy('raw_material_name')->get();
+        $purchaseOrders = PurchaseOrder::orderBy('po_number')->get();
 
         $materialInward->load('items');
 
-        return view('transactions.material-inwards.edit', compact('materialInward', 'suppliers', 'rawMaterials'));
+        return view('transactions.material-inwards.edit', compact('materialInward', 'suppliers', 'rawMaterials', 'purchaseOrders'));
     }
 
     public function update(Request $request, MaterialInward $materialInward)
@@ -108,6 +112,7 @@ class MaterialInwardController extends Controller
 
         $materialInward->received_date = $data['received_date'];
         $materialInward->supplier_id = $data['supplier_id'];
+        $materialInward->purchase_order_id = $data['purchase_order_id'] ?? null;
         $materialInward->remarks = $data['remarks'] ?? null;
         $materialInward->total_amount = $totalAmount;
         $materialInward->save();
@@ -146,6 +151,7 @@ class MaterialInwardController extends Controller
         return $request->validate([
             'received_date' => ['required', 'date'],
             'supplier_id' => ['required', 'exists:suppliers,id'],
+            'purchase_order_id' => ['nullable', 'exists:purchase_orders,id'],
             'remarks' => ['nullable', 'string'],
 
             'items' => ['required', 'array', 'min:1'],

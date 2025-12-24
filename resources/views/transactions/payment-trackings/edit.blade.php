@@ -62,7 +62,7 @@
                     </span>
                 </div>
                 <div id="invoice-info" style="margin-top: 10px; padding: 15px; background: #e7f3ff; border-radius: 5px; display: none;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-size: 13px; color: #333;">
+                    <div style="display: flex; gap: 30px; align-items: center; font-size: 13px; color: #333; flex-wrap: wrap;">
                         <div>
                             <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Invoice Date</label>
                             <p style="color: #333; font-size: 14px; margin: 0; font-weight: 500;"><span id="invoice-date"></span></p>
@@ -78,6 +78,11 @@
                         <div>
                             <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Balance</label>
                             <p style="color: #dc3545; font-size: 14px; margin: 0; font-weight: 600;">₹<span id="invoice-balance"></span></p>
+                        </div>
+                        <div style="display: flex; align-items: flex-end;">
+                            <button type="button" id="transaction-history-btn" style="padding: 8px 16px; background: #17a2b8; color: white; border: none; border-radius: 5px; font-size: 13px; font-weight: 500; cursor: pointer; display: none; margin-top: 20px;" onclick="showTransactionHistory()">
+                                <i class="fas fa-history"></i> Transaction History
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -150,6 +155,43 @@
     </form>
 </div>
 
+<!-- Transaction History Modal -->
+<div id="transaction-history-modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5);">
+    <div style="background-color: #fefefe; margin: 5% auto; padding: 0; border-radius: 10px; width: 90%; max-width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="padding: 20px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; background: #667eea; color: white; border-radius: 10px 10px 0 0;">
+            <h3 style="margin: 0; font-size: 20px; font-weight: 600;">Transaction History</h3>
+            <button onclick="closeTransactionHistoryModal()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 5px; transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='none'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div style="padding: 20px;">
+            <div id="transaction-history-loading" style="text-align: center; padding: 40px; display: none;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 32px; color: #667eea;"></i>
+                <p style="margin-top: 15px; color: #666;">Loading transaction history...</p>
+            </div>
+            <div id="transaction-history-content" style="display: none;">
+                <p id="transaction-history-invoice" style="margin-bottom: 20px; font-size: 16px; font-weight: 600; color: #333;"></p>
+                <div id="transaction-history-list" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+            <div id="transaction-history-empty" style="text-align: center; padding: 40px; display: none; color: #666;">
+                <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+                <p>No transaction history found for this invoice.</p>
+            </div>
+            <div id="transaction-history-error" style="text-align: center; padding: 40px; display: none; color: #dc3545;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 15px;"></i>
+                <p id="transaction-history-error-message">Error loading transaction history.</p>
+            </div>
+        </div>
+        <div style="padding: 15px 20px; border-top: 1px solid #dee2e6; text-align: right; background: #f8f9fa; border-radius: 0 0 10px 10px;">
+            <button onclick="closeTransactionHistoryModal()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: 500; cursor: pointer;">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 <script>
     // Load invoices when customer is selected
@@ -202,9 +244,22 @@
                                 const balance = parseFloat(invoice.balance_raw);
                                 const total = invoice.grand_total;
                                 const paid = invoice.total_paid;
-                                const date = invoice.invoice_date;
+                                const dateStr = invoice.invoice_date;
                                 
-                                document.getElementById('invoice-date').textContent = date;
+                                // Format date from YYYY-MM-DD to DD MMM YYYY (e.g., 23 Dec 2025)
+                                let formattedDate = dateStr;
+                                if (dateStr) {
+                                    const dateObj = new Date(dateStr + 'T00:00:00');
+                                    if (!isNaN(dateObj.getTime())) {
+                                        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                        const day = dateObj.getDate();
+                                        const month = months[dateObj.getMonth()];
+                                        const year = dateObj.getFullYear();
+                                        formattedDate = day + ' ' + month + ' ' + year;
+                                    }
+                                }
+                                
+                                document.getElementById('invoice-date').textContent = formattedDate;
                                 document.getElementById('invoice-total').textContent = total;
                                 document.getElementById('total-paid').textContent = paid;
                                 document.getElementById('invoice-balance').textContent = balance.toFixed(2);
@@ -212,6 +267,7 @@
                                 
                                 invoiceInfo.style.display = 'block';
                                 maxAmountHint.style.display = 'block';
+                                document.getElementById('transaction-history-btn').style.display = 'block';
                                 document.getElementById('payment_amount').setAttribute('max', balance);
                             }
                             
@@ -246,9 +302,22 @@
             const balance = parseFloat(selectedOption.getAttribute('data-balance'));
             const total = selectedOption.getAttribute('data-total');
             const paid = selectedOption.getAttribute('data-paid');
-            const date = selectedOption.getAttribute('data-date');
+            const dateStr = selectedOption.getAttribute('data-date');
             
-            document.getElementById('invoice-date').textContent = date;
+            // Format date from YYYY-MM-DD to DD MMM YYYY (e.g., 23 Dec 2025)
+            let formattedDate = dateStr;
+            if (dateStr) {
+                const date = new Date(dateStr + 'T00:00:00');
+                if (!isNaN(date.getTime())) {
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const day = date.getDate();
+                    const month = months[date.getMonth()];
+                    const year = date.getFullYear();
+                    formattedDate = day + ' ' + month + ' ' + year;
+                }
+            }
+            
+            document.getElementById('invoice-date').textContent = formattedDate;
             document.getElementById('invoice-total').textContent = total;
             document.getElementById('total-paid').textContent = paid;
             document.getElementById('invoice-balance').textContent = balance.toFixed(2);
@@ -257,11 +326,15 @@
             invoiceInfo.style.display = 'block';
             maxAmountHint.style.display = 'block';
             
+            // Show transaction history button
+            document.getElementById('transaction-history-btn').style.display = 'block';
+            
             // Set max attribute on payment amount input
             document.getElementById('payment_amount').setAttribute('max', balance);
         } else {
             invoiceInfo.style.display = 'none';
             maxAmountHint.style.display = 'none';
+            document.getElementById('transaction-history-btn').style.display = 'none';
             document.getElementById('payment_amount').removeAttribute('max');
         }
     });
@@ -289,7 +362,109 @@
             const changeEvent = new Event('change', { bubbles: true });
             customerSelect.dispatchEvent(changeEvent);
         }
+        
+        // Show transaction history button if invoice is already selected
+        const invoiceSelect = document.getElementById('sales_invoice_id');
+        if (invoiceSelect.value) {
+            document.getElementById('transaction-history-btn').style.display = 'block';
+        }
     });
+
+    // Show transaction history modal
+    function showTransactionHistory() {
+        const invoiceId = document.getElementById('sales_invoice_id').value;
+        if (!invoiceId) {
+            alert('Please select an invoice first.');
+            return;
+        }
+
+        const modal = document.getElementById('transaction-history-modal');
+        const loading = document.getElementById('transaction-history-loading');
+        const content = document.getElementById('transaction-history-content');
+        const empty = document.getElementById('transaction-history-empty');
+        const error = document.getElementById('transaction-history-error');
+        const list = document.getElementById('transaction-history-list');
+        const invoiceInfo = document.getElementById('transaction-history-invoice');
+
+        // Show modal and loading
+        modal.style.display = 'block';
+        loading.style.display = 'block';
+        content.style.display = 'none';
+        empty.style.display = 'none';
+        error.style.display = 'none';
+
+        // Fetch transaction history
+        const url = '{{ route("payment-trackings.get-transaction-history", ":id") }}'.replace(':id', invoiceId);
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : ''
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Network response was not ok');
+                }).catch(() => {
+                    throw new Error('Network response was not ok: ' + response.status);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            loading.style.display = 'none';
+
+            if (data.transactions && data.transactions.length > 0) {
+                invoiceInfo.textContent = 'Invoice: ' + (data.invoice_number || 'N/A');
+                
+                // Clear previous content
+                list.innerHTML = '';
+                
+                // Create table for transactions
+                let tableHTML = '<table style="width: 100%; border-collapse: collapse;">';
+                tableHTML += '<thead><tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">';
+                tableHTML += '<th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Transaction Date</th>';
+                tableHTML += '<th style="padding: 12px; text-align: right; color: #333; font-weight: 600;">Amount</th>';
+                tableHTML += '</tr></thead><tbody>';
+                
+                data.transactions.forEach(function(transaction) {
+                    tableHTML += '<tr style="border-bottom: 1px solid #dee2e6;">';
+                    tableHTML += '<td style="padding: 12px; color: #333;">' + transaction.payment_date_formatted + '</td>';
+                    tableHTML += '<td style="padding: 12px; text-align: right; color: #333; font-weight: 500;">₹' + transaction.payment_amount + '</td>';
+                    tableHTML += '</tr>';
+                });
+                
+                tableHTML += '</tbody></table>';
+                list.innerHTML = tableHTML;
+                
+                content.style.display = 'block';
+            } else {
+                empty.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error loading transaction history:', error);
+            loading.style.display = 'none';
+            error.style.display = 'block';
+            document.getElementById('transaction-history-error-message').textContent = 'Error: ' + error.message;
+        });
+    }
+
+    // Close transaction history modal
+    function closeTransactionHistoryModal() {
+        document.getElementById('transaction-history-modal').style.display = 'none';
+    }
+
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+        const modal = document.getElementById('transaction-history-modal');
+        if (event.target == modal) {
+            closeTransactionHistoryModal();
+        }
+    }
 </script>
 @endpush
 @endsection

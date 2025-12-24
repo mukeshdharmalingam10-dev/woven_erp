@@ -336,6 +336,17 @@
             top: 0;
             z-index: 100;
         }
+        .top-header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .top-header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: auto;
+        }
         .mobile-menu-toggle {
             display: none;
             background: none;
@@ -814,11 +825,12 @@
         <div class="main-content" id="mainContent">
             <!-- Top Header -->
             <header class="top-header">
+                <div class="top-header-left">
                 <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()" aria-label="Toggle menu">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="user-info" style="display: flex; align-items: center; gap: 15px;">
-                    
+                </div>
+                <div class="top-header-right">
                     @if(auth()->user()->role)
                         <span class="role-badge">{{ auth()->user()->role->name }}</span>
                     @endif

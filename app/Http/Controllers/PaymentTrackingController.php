@@ -294,4 +294,36 @@ class PaymentTrackingController extends Controller
             return response()->json(['error' => 'Error loading invoices: ' . $e->getMessage()], 500);
         }
     }
+
+    /**
+     * Get transaction history for a specific invoice (AJAX)
+     */
+    public function getTransactionHistory($invoiceId)
+    {
+        try {
+            $invoice = SalesInvoice::findOrFail($invoiceId);
+            
+            $transactions = PaymentTracking::where('sales_invoice_id', $invoiceId)
+                ->orderBy('payment_date', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function($payment) {
+                    return [
+                        'id' => $payment->id,
+                        'payment_date' => $payment->payment_date ? $payment->payment_date->format('Y-m-d') : '',
+                        'payment_date_formatted' => $payment->payment_date ? $payment->payment_date->format('d M Y') : '',
+                        'payment_amount' => number_format($payment->payment_amount, 2),
+                        'payment_amount_raw' => $payment->payment_amount,
+                    ];
+                });
+
+            return response()->json([
+                'invoice_number' => $invoice->invoice_number,
+                'transactions' => $transactions
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error fetching transaction history for invoice ' . $invoiceId . ': ' . $e->getMessage());
+            return response()->json(['error' => 'Error loading transaction history: ' . $e->getMessage()], 500);
+        }
+    }
 }

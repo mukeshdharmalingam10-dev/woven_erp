@@ -36,7 +36,7 @@
     {{-- Search Form --}}
     <form method="GET" action="{{ route('suppliers.index') }}" style="margin-bottom: 20px;">
         <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, ID, contact, email, phone, or GST number..." 
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, contact, email, phone, or GST number..." 
                 style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
             <button type="submit" style="padding: 10px 20px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 <i class="fas fa-search"></i> Search
@@ -55,7 +55,6 @@
                 <thead>
                     <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">S.No</th>
-                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Supplier ID</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Supplier Name</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Contact Name</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Phone</th>
@@ -69,7 +68,6 @@
                     @foreach($suppliers as $supplier)
                         <tr style="border-bottom: 1px solid #dee2e6;">
                             <td style="padding: 12px; color: #666;">{{ ($suppliers->currentPage() - 1) * $suppliers->perPage() + $loop->iteration }}</td>
-                            <td style="padding: 12px; color: #333; font-weight: 500;">{{ $supplier->code }}</td>
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $supplier->supplier_name }}</td>
                             <td style="padding: 12px; color: #666;">{{ $supplier->contact_name ?? 'N/A' }}</td>
                             <td style="padding: 12px; color: #666;">{{ $supplier->phone_number ?? 'N/A' }}</td>

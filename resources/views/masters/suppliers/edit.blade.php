@@ -29,12 +29,6 @@
         <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Basic Information</h3>
             
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; color: #666; font-weight: 500;">Supplier ID</label>
-                <input type="text" value="{{ $supplier->code }}" disabled
-                    style="width: 100%; max-width: 300px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #f5f5f5; color: #333; font-weight: 500;">
-            </div>
-
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
                     <label for="supplier_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Supplier Name <span style="color: red;">*</span></label>

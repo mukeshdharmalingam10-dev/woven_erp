@@ -20,10 +20,6 @@
         <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Basic Information</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
-                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Supplier ID</label>
-                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0; font-weight: 500;">{{ $supplier->code }}</p>
-            </div>
-            <div>
                 <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Supplier Name</label>
                 <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $supplier->supplier_name }}</p>
             </div>

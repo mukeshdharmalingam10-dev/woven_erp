@@ -208,8 +208,8 @@
                     <option value="{{ $country }}" {{ old('billing_country', $editing && isset($billingParts[5]) && $billingParts[5] === $country ? $country : 'India') === $country ? 'selected' : '' }}>{{ $country }}</option>
                 @endforeach
             </select>
-        </div>
     </div>
+</div>
 
     <!-- Shipping Address Section -->
     <div style="background: #f8f9fa; padding: 20px; border-radius: 5px;">
@@ -256,16 +256,16 @@
                     @endforeach
                 </select>
             </div>
-            <div>
+    <div>
                 <label for="shipping_postal_code" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Postal Code</label>
                 <input type="text" name="shipping_postal_code" id="shipping_postal_code"
                        value="{{ old('shipping_postal_code', $editing && isset($shippingParts[4]) ? $shippingParts[4] : '') }}"
                        placeholder="Enter postal code"
                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
             </div>
-        </div>
+    </div>
 
-        <div>
+    <div>
             <label for="shipping_country" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Country</label>
             <select name="shipping_country" id="shipping_country"
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff;">
@@ -785,7 +785,7 @@
         }
     }
 
-        document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
         // Initialize GST percentage to 18 if empty
         var gstPercentageField = document.getElementById('gst_percentage');
         if (!gstPercentageField.value || gstPercentageField.value === '') {

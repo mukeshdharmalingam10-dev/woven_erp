@@ -147,6 +147,7 @@ Route::middleware(['auth'])->group(function () {
     
     // Payment Tracking
     Route::get('payment-trackings/get-invoices', [App\Http\Controllers\PaymentTrackingController::class, 'getInvoices'])->name('payment-trackings.get-invoices');
+    Route::get('payment-trackings/get-transaction-history/{invoiceId}', [App\Http\Controllers\PaymentTrackingController::class, 'getTransactionHistory'])->name('payment-trackings.get-transaction-history');
     Route::resource('payment-trackings', App\Http\Controllers\PaymentTrackingController::class);
     
     
