@@ -10,6 +10,8 @@ class PettyCash extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'daily_expenses';
+
     protected $fillable = [
         'expense_id',
         'date',

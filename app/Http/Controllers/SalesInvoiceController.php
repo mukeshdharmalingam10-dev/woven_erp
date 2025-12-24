@@ -55,21 +55,32 @@ class SalesInvoiceController extends Controller
         $invoiceNumber = $data['invoice_number'] ?? ('INV-' . strtoupper(Str::random(8)));
 
         $customer = Customer::find($data['customer_id']);
-        $billingAddress = $customer ? $this->formatBillingAddress($customer) : null;
-        $shippingAddress = $customer ? $this->formatShippingAddress($customer) : null;
+        
+        // Format addresses from individual fields or use customer addresses
+        $billingAddress = $this->formatAddressFromFields($request, 'billing');
+        if (!$billingAddress && $customer) {
+            $billingAddress = $this->formatBillingAddress($customer);
+        }
+        
+        $shippingAddress = $this->formatAddressFromFields($request, 'shipping');
+        if (!$shippingAddress && $customer) {
+            $shippingAddress = $this->formatShippingAddress($customer);
+        }
 
         $salesInvoice = new SalesInvoice();
         $salesInvoice->fill([
             'invoice_number' => $invoiceNumber,
             'invoice_date' => $data['invoice_date'],
             'customer_id' => $data['customer_id'],
+            'mode_of_order' => $data['mode_of_order'] ?? 'IMMEDIATE',
+            'buyer_order_number' => $data['buyer_order_number'] ?? null,
             'billing_address' => $billingAddress,
             'shipping_address' => $shippingAddress,
-            'gst_percentage_overall' => $data['gst_percentage_overall'] ?? null,
-            'gst_classification' => $this->determineGstClassification($data['customer_id']),
+            'gst_percentage_overall' => $data['gst_percentage_overall'] ?? 18,
+            'gst_classification' => $data['gst_classification'] ?? $this->determineGstClassification($data['customer_id']),
         ]);
 
-        $totals = $this->calculateTotalsFromItems($data['items'] ?? []);
+        $totals = $this->calculateTotalsFromItems($data['items'] ?? [], $data['gst_percentage_overall'] ?? null);
         $salesInvoice->total_sales_amount = $totals['total_sales_amount'];
         $salesInvoice->total_gst_amount = $totals['total_gst_amount'];
         $salesInvoice->grand_total = $totals['grand_total'];
@@ -84,22 +95,25 @@ class SalesInvoiceController extends Controller
         $salesInvoice->save();
 
         foreach ($data['items'] as $item) {
-            $itemTotals = $this->calculateItemTotals(
-                $item['quantity_sold'],
-                $item['unit_price'],
-                $item['gst_percentage'] ?? null
-            );
+            $totalAmount = (float) $item['quantity_sold'] * (float) $item['unit_price'];
 
             SalesInvoiceItem::create([
                 'sales_invoice_id' => $salesInvoice->id,
                 'product_id' => $item['product_id'],
+                'description' => $item['description'] ?? null,
                 'quantity_sold' => $item['quantity_sold'],
                 'unit_price' => $item['unit_price'],
-                'total_amount' => $itemTotals['total_amount'],
-                'gst_percentage' => $item['gst_percentage'] ?? null,
-                'gst_amount' => $itemTotals['gst_amount'],
-                'line_total' => $itemTotals['line_total'],
+                'total_amount' => $totalAmount,
+                'gst_percentage' => null,
+                'gst_amount' => 0,
+                'line_total' => $totalAmount,
             ]);
+        }
+
+        // Check if print is requested
+        if ($request->has('print')) {
+            return redirect()->route('sales-invoices.index', ['print_id' => $salesInvoice->id])
+                ->with('success', 'Sales Invoice created and saved successfully.');
         }
 
         return redirect()->route('sales-invoices.index')
@@ -125,7 +139,7 @@ class SalesInvoiceController extends Controller
             $companyInfo = CompanyInformation::first();
         }
 
-        $salesInvoice->load('items');
+        $salesInvoice->load(['items', 'customer']);
 
         return view('transactions.sales-invoices.edit', compact('salesInvoice', 'customers', 'products', 'companyInfo'));
     }
@@ -135,18 +149,29 @@ class SalesInvoiceController extends Controller
         $data = $this->validateRequest($request, $salesInvoice);
 
         $customer = Customer::find($data['customer_id']);
-        $billingAddress = $customer ? $this->formatBillingAddress($customer) : null;
-        $shippingAddress = $customer ? $this->formatShippingAddress($customer) : null;
+        
+        // Format addresses from individual fields or use customer addresses
+        $billingAddress = $this->formatAddressFromFields($request, 'billing');
+        if (!$billingAddress && $customer) {
+            $billingAddress = $this->formatBillingAddress($customer);
+        }
+        
+        $shippingAddress = $this->formatAddressFromFields($request, 'shipping');
+        if (!$shippingAddress && $customer) {
+            $shippingAddress = $this->formatShippingAddress($customer);
+        }
 
         $salesInvoice->invoice_number = $data['invoice_number'] ?? $salesInvoice->invoice_number;
         $salesInvoice->invoice_date = $data['invoice_date'];
         $salesInvoice->customer_id = $data['customer_id'];
+        $salesInvoice->mode_of_order = $data['mode_of_order'] ?? 'IMMEDIATE';
+        $salesInvoice->buyer_order_number = $data['buyer_order_number'] ?? null;
         $salesInvoice->billing_address = $billingAddress;
         $salesInvoice->shipping_address = $shippingAddress;
-        $salesInvoice->gst_percentage_overall = $data['gst_percentage_overall'] ?? null;
-        $salesInvoice->gst_classification = $this->determineGstClassification($data['customer_id']);
+        $salesInvoice->gst_percentage_overall = $data['gst_percentage_overall'] ?? 18;
+        $salesInvoice->gst_classification = $data['gst_classification'] ?? $this->determineGstClassification($data['customer_id']);
 
-        $totals = $this->calculateTotalsFromItems($data['items'] ?? []);
+        $totals = $this->calculateTotalsFromItems($data['items'] ?? [], $data['gst_percentage_overall'] ?? null);
         $salesInvoice->total_sales_amount = $totals['total_sales_amount'];
         $salesInvoice->total_gst_amount = $totals['total_gst_amount'];
         $salesInvoice->grand_total = $totals['grand_total'];
@@ -156,22 +181,25 @@ class SalesInvoiceController extends Controller
         $salesInvoice->items()->delete();
 
         foreach ($data['items'] as $item) {
-            $itemTotals = $this->calculateItemTotals(
-                $item['quantity_sold'],
-                $item['unit_price'],
-                $item['gst_percentage'] ?? null
-            );
+            $totalAmount = (float) $item['quantity_sold'] * (float) $item['unit_price'];
 
             SalesInvoiceItem::create([
                 'sales_invoice_id' => $salesInvoice->id,
                 'product_id' => $item['product_id'],
+                'description' => $item['description'] ?? null,
                 'quantity_sold' => $item['quantity_sold'],
                 'unit_price' => $item['unit_price'],
-                'total_amount' => $itemTotals['total_amount'],
-                'gst_percentage' => $item['gst_percentage'] ?? null,
-                'gst_amount' => $itemTotals['gst_amount'],
-                'line_total' => $itemTotals['line_total'],
+                'total_amount' => $totalAmount,
+                'gst_percentage' => null,
+                'gst_amount' => 0,
+                'line_total' => $totalAmount,
             ]);
+        }
+
+        // Check if print is requested
+        if ($request->has('print')) {
+            return redirect()->route('sales-invoices.index', ['print_id' => $salesInvoice->id])
+                ->with('success', 'Sales Invoice updated and saved successfully.');
         }
 
         return redirect()->route('sales-invoices.index')
@@ -191,13 +219,16 @@ class SalesInvoiceController extends Controller
         $rules = [
             'invoice_date' => ['required', 'date'],
             'customer_id' => ['required', 'exists:customers,id'],
+            'mode_of_order' => ['nullable', 'string', 'max:191'],
+            'buyer_order_number' => ['nullable', 'string', 'max:191'],
             'gst_percentage_overall' => ['nullable', 'numeric', 'min:0'],
+            'gst_classification' => ['nullable', 'in:CGST_SGST,IGST'],
 
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'exists:products,id'],
-            'items.*.quantity_sold' => ['required', 'numeric', 'min:0.0001'],
+            'items.*.description' => ['nullable', 'string'],
+            'items.*.quantity_sold' => ['required', 'integer', 'min:1'],
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
-            'items.*.gst_percentage' => ['nullable', 'numeric', 'min:0'],
         ];
 
         if (!$salesInvoice) {
@@ -226,20 +257,15 @@ class SalesInvoiceController extends Controller
         ];
     }
 
-    protected function calculateTotalsFromItems(array $items): array
+    protected function calculateTotalsFromItems(array $items, ?float $gstPercentage = null): array
     {
         $totalSales = 0;
-        $totalGst = 0;
 
         foreach ($items as $item) {
-            $itemTotals = $this->calculateItemTotals(
-                $item['quantity_sold'],
-                $item['unit_price'],
-                $item['gst_percentage'] ?? null
-            );
-            $totalSales += $itemTotals['total_amount'];
-            $totalGst += $itemTotals['gst_amount'];
+            $totalSales += (float) $item['quantity_sold'] * (float) $item['unit_price'];
         }
+
+        $totalGst = $gstPercentage && $gstPercentage > 0 ? ($totalSales * $gstPercentage) / 100 : 0;
 
         return [
             'total_sales_amount' => $totalSales,
@@ -294,6 +320,48 @@ class SalesInvoiceController extends Controller
         if ($customer->shipping_postal_code) $parts[] = $customer->shipping_postal_code;
         if ($customer->shipping_country) $parts[] = $customer->shipping_country;
         return implode(', ', $parts);
+    }
+
+    protected function formatAddressFromFields(Request $request, string $type): ?string
+    {
+        $prefix = $type . '_';
+        $parts = [];
+        
+        if ($request->has($prefix . 'address_line_1') && $request->input($prefix . 'address_line_1')) {
+            $parts[] = $request->input($prefix . 'address_line_1');
+        }
+        if ($request->has($prefix . 'address_line_2') && $request->input($prefix . 'address_line_2')) {
+            $parts[] = $request->input($prefix . 'address_line_2');
+        }
+        if ($request->has($prefix . 'city') && $request->input($prefix . 'city')) {
+            $parts[] = $request->input($prefix . 'city');
+        }
+        if ($request->has($prefix . 'state') && $request->input($prefix . 'state')) {
+            $parts[] = $request->input($prefix . 'state');
+        }
+        if ($request->has($prefix . 'postal_code') && $request->input($prefix . 'postal_code')) {
+            $parts[] = $request->input($prefix . 'postal_code');
+        }
+        if ($request->has($prefix . 'country') && $request->input($prefix . 'country')) {
+            $parts[] = $request->input($prefix . 'country');
+        }
+        
+        return !empty($parts) ? implode(', ', $parts) : null;
+    }
+
+    public function print(SalesInvoice $salesInvoice)
+    {
+        $salesInvoice->load(['customer', 'items.product']);
+        
+        $activeBranchId = session('active_branch_id');
+        $companyInfo = null;
+        if ($activeBranchId) {
+            $companyInfo = CompanyInformation::where('branch_id', $activeBranchId)->first();
+        } else {
+            $companyInfo = CompanyInformation::first();
+        }
+
+        return view('transactions.sales-invoices.export-pdf', compact('salesInvoice', 'companyInfo'));
     }
 }
 

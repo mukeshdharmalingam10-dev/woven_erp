@@ -37,10 +37,19 @@ class CustomerController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('customer_name', 'like', "%{$search}%")
                   ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('contact_name', 'like', "%{$search}%")
+                  ->orWhere('contact_name_1', 'like', "%{$search}%")
+                  ->orWhere('contact_name_2', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('phone_number', 'like', "%{$search}%")
-                  ->orWhere('gst_number', 'like', "%{$search}%");
+                  ->orWhere('gst_number', 'like', "%{$search}%")
+                  ->orWhere('bank_name', 'like', "%{$search}%")
+                  ->orWhere('ifsc_code', 'like', "%{$search}%")
+                  ->orWhere('account_number', 'like', "%{$search}%")
+                  ->orWhere('bank_branch_name', 'like', "%{$search}%")
+                  ->orWhere('billing_address_line_1', 'like', "%{$search}%")
+                  ->orWhere('billing_city', 'like', "%{$search}%")
+                  ->orWhere('billing_state', 'like', "%{$search}%")
+                  ->orWhere('billing_postal_code', 'like', "%{$search}%");
             });
         }
         
@@ -84,42 +93,30 @@ class CustomerController extends Controller
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
-            'contact_name' => 'nullable|string|max:255',
+            'contact_name_1' => 'nullable|string|max:255',
+            'contact_name_2' => 'nullable|string|max:255',
             'phone_number' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
-            'billing_address_line_1' => 'nullable|string|max:255',
-            'billing_address_line_2' => 'nullable|string|max:255',
-            'billing_city' => 'nullable|string|max:100',
-            'billing_state' => 'nullable|string|max:100',
-            'billing_postal_code' => 'nullable|string|max:20',
-            'billing_country' => 'nullable|string|max:100',
-            'shipping_address_line_1' => 'nullable|string|max:255',
-            'shipping_address_line_2' => 'nullable|string|max:255',
-            'shipping_city' => 'nullable|string|max:100',
-            'shipping_state' => 'nullable|string|max:100',
-            'shipping_postal_code' => 'nullable|string|max:20',
-            'shipping_country' => 'nullable|string|max:100',
             'gst_number' => 'nullable|string|max:50',
+            'bank_name' => 'nullable|string|max:255',
+            'ifsc_code' => 'nullable|string|max:50',
+            'account_number' => 'nullable|string|max:50',
+            'bank_branch_name' => 'nullable|string|max:255',
         ], [
             'customer_name.required' => 'Customer/Company Name is required.',
             'customer_name.max' => 'Customer/Company Name must not exceed 255 characters.',
-            'contact_name.max' => 'Contact Name must not exceed 255 characters.',
+            'contact_name_1.max' => 'Contact Name 1 must not exceed 255 characters.',
+            'contact_name_2.max' => 'Contact Name 2 must not exceed 255 characters.',
             'phone_number.max' => 'Phone Number must not exceed 20 characters.',
             'email.email' => 'Email must be a valid email address.',
             'email.max' => 'Email must not exceed 255 characters.',
-            'billing_address_line_1.max' => 'Billing Address Line 1 must not exceed 255 characters.',
-            'billing_address_line_2.max' => 'Billing Address Line 2 must not exceed 255 characters.',
-            'billing_city.max' => 'Billing City must not exceed 100 characters.',
-            'billing_state.max' => 'Billing State must not exceed 100 characters.',
-            'billing_postal_code.max' => 'Billing Postal Code must not exceed 20 characters.',
-            'billing_country.max' => 'Billing Country must not exceed 100 characters.',
-            'shipping_address_line_1.max' => 'Shipping Address Line 1 must not exceed 255 characters.',
-            'shipping_address_line_2.max' => 'Shipping Address Line 2 must not exceed 255 characters.',
-            'shipping_city.max' => 'Shipping City must not exceed 100 characters.',
-            'shipping_state.max' => 'Shipping State must not exceed 100 characters.',
-            'shipping_postal_code.max' => 'Shipping Postal Code must not exceed 20 characters.',
-            'shipping_country.max' => 'Shipping Country must not exceed 100 characters.',
             'gst_number.max' => 'GST Number must not exceed 50 characters.',
+            'bank_name.max' => 'Bank Name must not exceed 255 characters.',
+            'ifsc_code.max' => 'IFSC Code must not exceed 50 characters.',
+            'account_number.max' => 'Account Number must not exceed 50 characters.',
+            'bank_branch_name.max' => 'Branch Name must not exceed 255 characters.',
+            'billing_state.required' => 'State is required.',
+            'billing_state.max' => 'State must not exceed 100 characters.',
         ]);
 
         // Generate sequential Customer ID starting from CUS001
@@ -158,22 +155,27 @@ class CustomerController extends Controller
         $customer = Customer::create([
             'customer_name' => $request->customer_name,
             'code' => $code,
-            'contact_name' => $request->contact_name,
+            'contact_name_1' => $request->contact_name_1,
+            'contact_name_2' => $request->contact_name_2,
             'phone_number' => $request->phone_number,
             'email' => $request->email,
+            'gst_number' => $request->gst_number,
+            'bank_name' => $request->bank_name,
+            'ifsc_code' => $request->ifsc_code,
+            'account_number' => $request->account_number,
+            'bank_branch_name' => $request->bank_branch_name,
             'billing_address_line_1' => $request->billing_address_line_1,
             'billing_address_line_2' => $request->billing_address_line_2,
             'billing_city' => $request->billing_city,
             'billing_state' => $request->billing_state,
             'billing_postal_code' => $request->billing_postal_code,
-            'billing_country' => $request->billing_country,
+            'billing_country' => $request->billing_country ?? 'India',
             'shipping_address_line_1' => $request->shipping_address_line_1,
             'shipping_address_line_2' => $request->shipping_address_line_2,
             'shipping_city' => $request->shipping_city,
             'shipping_state' => $request->shipping_state,
             'shipping_postal_code' => $request->shipping_postal_code,
-            'shipping_country' => $request->shipping_country,
-            'gst_number' => $request->gst_number,
+            'shipping_country' => $request->shipping_country ?? 'India',
             'organization_id' => $user->organization_id,
             'branch_id' => $user->branch_id,
             'created_by' => $user->id,
@@ -206,63 +208,68 @@ class CustomerController extends Controller
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
-            'contact_name' => 'nullable|string|max:255',
+            'contact_name_1' => 'nullable|string|max:255',
+            'contact_name_2' => 'nullable|string|max:255',
             'phone_number' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
+            'gst_number' => 'nullable|string|max:50',
+            'bank_name' => 'nullable|string|max:255',
+            'ifsc_code' => 'nullable|string|max:50',
+            'account_number' => 'nullable|string|max:50',
+            'bank_branch_name' => 'nullable|string|max:255',
             'billing_address_line_1' => 'nullable|string|max:255',
             'billing_address_line_2' => 'nullable|string|max:255',
             'billing_city' => 'nullable|string|max:100',
-            'billing_state' => 'nullable|string|max:100',
-            'billing_postal_code' => 'nullable|string|max:20',
+            'billing_state' => 'required|string|max:100',
+            'billing_postal_code' => 'nullable|string|max:10',
             'billing_country' => 'nullable|string|max:100',
             'shipping_address_line_1' => 'nullable|string|max:255',
             'shipping_address_line_2' => 'nullable|string|max:255',
             'shipping_city' => 'nullable|string|max:100',
             'shipping_state' => 'nullable|string|max:100',
-            'shipping_postal_code' => 'nullable|string|max:20',
+            'shipping_postal_code' => 'nullable|string|max:10',
             'shipping_country' => 'nullable|string|max:100',
-            'gst_number' => 'nullable|string|max:50',
         ], [
             'customer_name.required' => 'Customer/Company Name is required.',
             'customer_name.max' => 'Customer/Company Name must not exceed 255 characters.',
-            'contact_name.max' => 'Contact Name must not exceed 255 characters.',
+            'contact_name_1.max' => 'Contact Name 1 must not exceed 255 characters.',
+            'contact_name_2.max' => 'Contact Name 2 must not exceed 255 characters.',
             'phone_number.max' => 'Phone Number must not exceed 20 characters.',
             'email.email' => 'Email must be a valid email address.',
             'email.max' => 'Email must not exceed 255 characters.',
-            'billing_address_line_1.max' => 'Billing Address Line 1 must not exceed 255 characters.',
-            'billing_address_line_2.max' => 'Billing Address Line 2 must not exceed 255 characters.',
-            'billing_city.max' => 'Billing City must not exceed 100 characters.',
-            'billing_state.max' => 'Billing State must not exceed 100 characters.',
-            'billing_postal_code.max' => 'Billing Postal Code must not exceed 20 characters.',
-            'billing_country.max' => 'Billing Country must not exceed 100 characters.',
-            'shipping_address_line_1.max' => 'Shipping Address Line 1 must not exceed 255 characters.',
-            'shipping_address_line_2.max' => 'Shipping Address Line 2 must not exceed 255 characters.',
-            'shipping_city.max' => 'Shipping City must not exceed 100 characters.',
-            'shipping_state.max' => 'Shipping State must not exceed 100 characters.',
-            'shipping_postal_code.max' => 'Shipping Postal Code must not exceed 20 characters.',
-            'shipping_country.max' => 'Shipping Country must not exceed 100 characters.',
             'gst_number.max' => 'GST Number must not exceed 50 characters.',
+            'bank_name.max' => 'Bank Name must not exceed 255 characters.',
+            'ifsc_code.max' => 'IFSC Code must not exceed 50 characters.',
+            'account_number.max' => 'Account Number must not exceed 50 characters.',
+            'bank_branch_name.max' => 'Branch Name must not exceed 255 characters.',
+            'billing_state.required' => 'State is required.',
+            'billing_state.max' => 'State must not exceed 100 characters.',
         ]);
 
         // Customer ID (code) is not editable - it remains the same
         $customer->update([
             'customer_name' => $request->customer_name,
-            'contact_name' => $request->contact_name,
+            'contact_name_1' => $request->contact_name_1,
+            'contact_name_2' => $request->contact_name_2,
             'phone_number' => $request->phone_number,
             'email' => $request->email,
+            'gst_number' => $request->gst_number,
+            'bank_name' => $request->bank_name,
+            'ifsc_code' => $request->ifsc_code,
+            'account_number' => $request->account_number,
+            'bank_branch_name' => $request->bank_branch_name,
             'billing_address_line_1' => $request->billing_address_line_1,
             'billing_address_line_2' => $request->billing_address_line_2,
             'billing_city' => $request->billing_city,
             'billing_state' => $request->billing_state,
             'billing_postal_code' => $request->billing_postal_code,
-            'billing_country' => $request->billing_country,
+            'billing_country' => $request->billing_country ?? 'India',
             'shipping_address_line_1' => $request->shipping_address_line_1,
             'shipping_address_line_2' => $request->shipping_address_line_2,
             'shipping_city' => $request->shipping_city,
             'shipping_state' => $request->shipping_state,
             'shipping_postal_code' => $request->shipping_postal_code,
-            'shipping_country' => $request->shipping_country,
-            'gst_number' => $request->gst_number,
+            'shipping_country' => $request->shipping_country ?? 'India',
         ]);
 
         return redirect()->route('customers.index')

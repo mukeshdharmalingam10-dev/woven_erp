@@ -28,14 +28,6 @@
 
         <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Basic Information</h3>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; color: #666; font-weight: 500;">Product ID</label>
-                <div style="padding: 12px; background: #e9ecef; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; color: #333; font-weight: 500;">
-                    {{ $product->code }}
-                </div>
-                <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Product ID cannot be changed</small>
-            </div>
 
             <div style="margin-bottom: 20px;">
                 <label for="product_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Product Name <span style="color: red;">*</span></label>
@@ -67,6 +59,16 @@
                     <option value="PKT" {{ old('unit_of_measure', $product->unit_of_measure) === 'PKT' ? 'selected' : '' }}>PKT (Packets)</option>
                 </select>
                 @error('unit_of_measure')
+                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="description" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Description</label>
+                <textarea name="description" id="description" rows="3"
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; resize: vertical;"
+                    placeholder="Enter description or additional details about the product">{{ old('description', $product->description) }}</textarea>
+                @error('description')
                     <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
                 @enderror
             </div>

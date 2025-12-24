@@ -100,5 +100,24 @@
         </div>
     @endif
 </div>
+
+@if(request('print_id'))
+    @push('scripts')
+    <script>
+        (function() {
+            var printId = {{ request('print_id') }};
+            var printUrl = '{{ route("sales-invoices.print", ":id") }}'.replace(':id', printId);
+            var printWindow = window.open(printUrl, '_blank');
+            
+            // The print will be triggered automatically by the export-pdf view's window.onload
+            // This ensures the window opens and the print dialog appears
+            if (printWindow) {
+                // Focus the print window
+                printWindow.focus();
+            }
+        })();
+    </script>
+    @endpush
+@endif
 @endsection
 

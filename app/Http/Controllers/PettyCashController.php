@@ -71,7 +71,7 @@ class PettyCashController extends Controller
         $pettyCash->save();
 
         return redirect()->route('petty-cash.index')
-            ->with('success', 'Petty Cash entry created successfully.');
+            ->with('success', 'Daily Expense entry created successfully.');
     }
 
     public function show(PettyCash $pettyCash)
@@ -113,7 +113,7 @@ class PettyCashController extends Controller
         $pettyCash->save();
 
         return redirect()->route('petty-cash.index')
-            ->with('success', 'Petty Cash entry updated successfully.');
+            ->with('success', 'Daily Expense entry updated successfully.');
     }
 
     public function destroy(PettyCash $pettyCash)
@@ -126,7 +126,7 @@ class PettyCashController extends Controller
         $pettyCash->delete();
 
         return redirect()->route('petty-cash.index')
-            ->with('success', 'Petty Cash entry deleted successfully.');
+            ->with('success', 'Daily Expense entry deleted successfully.');
     }
 
     protected function validateRequest(Request $request, ?PettyCash $pettyCash = null): array
@@ -143,9 +143,9 @@ class PettyCashController extends Controller
         ];
 
         if (!$pettyCash) {
-            $rules['expense_id'] = ['nullable', 'string', 'max:191', 'unique:petty_cashes,expense_id'];
+            $rules['expense_id'] = ['nullable', 'string', 'max:191', 'unique:daily_expenses,expense_id'];
         } else {
-            $rules['expense_id'] = ['nullable', 'string', 'max:191', 'unique:petty_cashes,expense_id,' . $pettyCash->id];
+            $rules['expense_id'] = ['nullable', 'string', 'max:191', 'unique:daily_expenses,expense_id,' . $pettyCash->id];
         }
 
         return $request->validate($rules);

@@ -15,6 +15,7 @@ class WorkOrder extends Model
         'customer_id',
         'product_id',
         'quantity_to_produce',
+        'per_kg_weight',
         'work_order_date',
         'status',
         'organization_id',
@@ -25,6 +26,7 @@ class WorkOrder extends Model
     protected $casts = [
         'work_order_date' => 'date',
         'quantity_to_produce' => 'decimal:3',
+        'per_kg_weight' => 'decimal:3',
     ];
 
     public const STATUS_OPEN = 'open';

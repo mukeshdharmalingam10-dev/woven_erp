@@ -2,38 +2,40 @@
     $editing = isset($materialInward);
 @endphp
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 25px;">
-    <div>
+<div style="margin-bottom: 25px;">
+    <div style="margin-bottom: 20px;">
         <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Inward Number</label>
         <input type="text" value="{{ $editing ? $materialInward->inward_number : 'Auto Generated' }}" disabled
-               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
+               style="width: 100%; max-width: 300px; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
     </div>
 
-    <div>
-        <label for="received_date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Received Date <span style="color:red">*</span></label>
-        <input type="date" name="received_date" id="received_date" required
-               value="{{ old('received_date', $editing ? optional($materialInward->received_date)->format('Y-m-d') : now()->format('Y-m-d')) }}"
-               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-        @error('received_date')
-            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
-        @enderror
-    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+            <label for="received_date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Received Date <span style="color:red">*</span></label>
+            <input type="date" name="received_date" id="received_date" required
+                   value="{{ old('received_date', $editing ? optional($materialInward->received_date)->format('Y-m-d') : now()->format('Y-m-d')) }}"
+                   style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+            @error('received_date')
+                <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
+            @enderror
+        </div>
 
-    <div>
-        <label for="supplier_id" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Supplier <span style="color:red">*</span></label>
-        <select name="supplier_id" id="supplier_id" required
-                style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-            <option value="">-- Select Supplier --</option>
-            @foreach($suppliers as $supplier)
-                <option value="{{ $supplier->id }}"
-                    {{ old('supplier_id', $editing ? $materialInward->supplier_id : '') == $supplier->id ? 'selected' : '' }}>
-                    {{ $supplier->supplier_name }} ({{ $supplier->code }})
-                </option>
-            @endforeach
-        </select>
-        @error('supplier_id')
-            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
-        @enderror
+        <div>
+            <label for="supplier_id" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Supplier <span style="color:red">*</span></label>
+            <select name="supplier_id" id="supplier_id" required
+                    style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+                <option value="">-- Select Supplier --</option>
+                @foreach($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}"
+                        {{ old('supplier_id', $editing ? $materialInward->supplier_id : '') == $supplier->id ? 'selected' : '' }}>
+                        {{ $supplier->supplier_name }} ({{ $supplier->code }})
+                    </option>
+                @endforeach
+            </select>
+            @error('supplier_id')
+                <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
+            @enderror
+        </div>
     </div>
 </div>
 
@@ -77,8 +79,8 @@
                         </select>
                     </td>
                     <td style="padding: 8px;">
-                        <input type="number" step="0.001" min="0" name="items[{{ $index }}][quantity_received]"
-                               value="{{ $item['quantity_received'] ?? '' }}"
+                        <input type="number" step="1" min="0" name="items[{{ $index }}][quantity_received]"
+                               value="{{ isset($item['quantity_received']) ? (int)$item['quantity_received'] : '' }}"
                                class="item-quantity"
                                style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
                     </td>
@@ -216,7 +218,7 @@
                 </select>
             </td>
             <td style="padding: 8px;">
-                <input type="number" step="0.001" min="0" name="items[${index}][quantity_received]"
+                <input type="number" step="1" min="0" name="items[${index}][quantity_received]"
                        class="item-quantity"
                        style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
             </td>

@@ -10,7 +10,12 @@
             <div>
                 <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 8px; color: white;">Welcome back, {{ $user->name }}!</h1>
                 <p style="font-size: 16px; opacity: 0.9; margin: 0;">
-                    @if($user->organization)
+                    @if(isset($companyName) && $companyName)
+                        {{ $companyName }}
+                        @if($user->branch)
+                            - {{ $user->branch->name }}
+                        @endif
+                    @elseif($user->organization)
                         {{ $user->organization->name }}
                         @if($user->branch)
                             - {{ $user->branch->name }}
@@ -190,7 +195,7 @@
                 @if(Route::has('petty-cash.create'))
                 <a href="{{ route('petty-cash.create') }}" style="padding: 15px; background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%); color: white; text-decoration: none; border-radius: 10px; text-align: center; transition: all 0.3s; display: flex; flex-direction: column; align-items: center; gap: 8px;" onmouseover="this.style.transform='scale(1.05)';" onmouseout="this.style.transform='scale(1)';">
                     <i class="fas fa-money-bill-wave" style="font-size: 24px;"></i>
-                    <span style="font-weight: 500;">Petty Cash</span>
+                    <span style="font-weight: 500;">Daily Expense</span>
                 </a>
                 @endif
                 @if(Route::has('leaves.create'))

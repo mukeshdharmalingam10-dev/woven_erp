@@ -3,46 +3,58 @@
 @section('title', 'View Production - Woven_ERP')
 
 @section('content')
-<div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="color: #333; font-size: 22px; margin: 0;">Production Details</h2>
-        <div style="display: flex; gap: 8px;">
-            <a href="{{ route('productions.edit', $production->id) }}" style="padding: 8px 16px; background: #ffc107; color: #333; text-decoration: none; border-radius: 5px; font-size: 14px;">
+<div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 1000px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h2 style="color: #333; font-size: 24px; margin: 0;">Production Details</h2>
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ route('productions.edit', $production->id) }}" style="padding: 10px 20px; background: #ffc107; color: #333; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-edit"></i> Edit
             </a>
-            <a href="{{ route('productions.index') }}" style="padding: 8px 16px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 5px; font-size: 14px;">
+            <a href="{{ route('productions.index') }}" style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-arrow-left"></i> Back to List
             </a>
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 25px;">
-        <div>
-            <div style="font-size: 13px; color: #6b7280;">Work Order Number</div>
-            <div style="font-weight: 600; color: #111827;">{{ $production->workOrder->work_order_number ?? '-' }}</div>
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Production Information</h3>
+        
+        <!-- First Row: Work Order Number (full width) -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Work Order Number</label>
+            <p style="color: #333; font-size: 16px; margin: 0;">{{ $production->workOrder->work_order_number ?? '-' }}</p>
         </div>
-        <div>
-            <div style="font-size: 13px; color: #6b7280;">Product Name</div>
-            <div style="font-weight: 600; color: #111827;">{{ $production->product->product_name ?? '-' }}</div>
+
+        <!-- Second Row: Product Name and Produced Quantity (side by side) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Product Name</label>
+                <p style="color: #333; font-size: 16px; margin: 0;">{{ $production->product->product_name ?? '-' }} @if($production->product) ({{ $production->product->code }}) @endif</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Produced Quantity</label>
+                <p style="color: #333; font-size: 16px; margin: 0;">{{ number_format($production->produced_quantity, 0) }}</p>
+            </div>
         </div>
-        <div>
-            <div style="font-size: 13px; color: #6b7280;">Produced Quantity</div>
-            <div style="font-weight: 600; color: #111827;">{{ number_format($production->produced_quantity, 3) }}</div>
-        </div>
-        <div>
-            <div style="font-size: 13px; color: #6b7280;">Weight of 1 Bag/Unit</div>
-            <div style="font-weight: 600; color: #111827;">{{ number_format($production->weight_per_unit, 3) }}</div>
-        </div>
-        <div>
-            <div style="font-size: 13px; color: #6b7280;">Total Weight Produced</div>
-            <div style="font-weight: 600; color: #111827;">{{ number_format($production->total_weight, 3) }}</div>
+
+        <!-- Third Row: Weight of 1 Bag/Unit and Total Weight Produced (side by side) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Weight of 1 Bag/Unit</label>
+                <p style="color: #333; font-size: 16px; margin: 0;">{{ number_format($production->weight_per_unit, 2) }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Total Weight Produced</label>
+                <p style="color: #333; font-size: 16px; margin: 0;">{{ number_format($production->total_weight, 0) }}</p>
+            </div>
         </div>
     </div>
 
-    <div style="max-width: 640px;">
-        <div style="font-size: 13px; color: #6b7280; margin-bottom: 4px;">Remarks</div>
-        <div style="padding: 10px; border-radius: 5px; border: 1px solid #e5e7eb; background: #f9fafb; min-height: 60px; white-space: pre-wrap;">
-            {{ $production->remarks ?: '-' }}
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Additional Information</h3>
+        <div>
+            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Remarks</label>
+            <p style="color: #333; font-size: 16px; margin: 0; white-space: pre-wrap;">{{ $production->remarks ?: '-' }}</p>
         </div>
     </div>
 </div>

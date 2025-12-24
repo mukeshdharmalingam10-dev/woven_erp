@@ -36,7 +36,7 @@
     {{-- Search Form --}}
     <form method="GET" action="{{ route('products.index') }}" style="margin-bottom: 20px;">
         <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, ID, or unit..." 
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, unit, or description..." 
                 style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
             <button type="submit" style="padding: 10px 20px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 <i class="fas fa-search"></i> Search
@@ -55,8 +55,8 @@
                 <thead>
                     <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">S.No</th>
-                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Product ID</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Product Name</th>
+                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Description</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Unit of Measure</th>
                         <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">Actions</th>
                     </tr>
@@ -65,8 +65,10 @@
                     @foreach($products as $product)
                         <tr style="border-bottom: 1px solid #dee2e6;">
                             <td style="padding: 12px; color: #666;">{{ ($products->currentPage() - 1) * $products->perPage() + $loop->iteration }}</td>
-                            <td style="padding: 12px; color: #333; font-weight: 500;">{{ $product->code }}</td>
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $product->product_name }}</td>
+                            <td style="padding: 12px; color: #666; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ $product->description }}
+                            </td>
                             <td style="padding: 12px; color: #666;">{{ $product->unit_of_measure }}</td>
                             <td style="padding: 12px; text-align: center;">
                                 <div style="display: flex; gap: 8px; justify-content: center;">

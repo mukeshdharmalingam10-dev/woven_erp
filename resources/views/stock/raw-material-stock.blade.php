@@ -54,10 +54,10 @@
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $data['raw_material']->raw_material_name ?? 'N/A' }}</td>
                             <td style="padding: 12px; color: #666;">{{ $data['raw_material']->unit_of_measure ?? '-' }}</td>
                             <td style="padding: 12px; text-align: right; color: #333; font-weight: 600;">
-                                {{ number_format($data['current_stock'], 2) }}
+                                {{ number_format($data['current_stock'], 0) }}
                             </td>
                             <td style="padding: 12px; text-align: right; color: #666;">
-                                {{ number_format($data['reorder_level'], 2) }}
+                                {{ number_format($data['reorder_level'], 0) }}
                             </td>
                             <td style="padding: 12px; text-align: center;">
                                 @if($data['is_low_stock'])

@@ -55,8 +55,8 @@
                 <thead>
                     <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">S.No</th>
-                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Raw Material ID</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Raw Material Name</th>
+                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Description</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Unit of Measure</th>
                         <th style="padding: 12px; text-align: right; color: #333; font-weight: 600;">Reorder Level</th>
                         <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">Actions</th>
@@ -66,8 +66,10 @@
                     @foreach($rawMaterials as $rawMaterial)
                         <tr style="border-bottom: 1px solid #dee2e6;">
                             <td style="padding: 12px; color: #666;">{{ ($rawMaterials->currentPage() - 1) * $rawMaterials->perPage() + $loop->iteration }}</td>
-                            <td style="padding: 12px; color: #333; font-weight: 500;">{{ $rawMaterial->code }}</td>
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $rawMaterial->raw_material_name }}</td>
+                            <td style="padding: 12px; color: #666; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                {{ $rawMaterial->description }}
+                            </td>
                             <td style="padding: 12px; color: #666;">{{ $rawMaterial->unit_of_measure }}</td>
                             <td style="padding: 12px; text-align: right; color: #666;">{{ number_format($rawMaterial->reorder_level, 2) }}</td>
                             <td style="padding: 12px; text-align: center;">

@@ -33,7 +33,6 @@
                 <input type="text" name="raw_material_name" id="raw_material_name" value="{{ old('raw_material_name') }}" required
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
                     placeholder="Enter raw material name">
-                <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Raw Material ID will be auto-generated (RM001, RM002, etc.)</small>
                 @error('raw_material_name')
                     <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
                 @enderror
@@ -64,8 +63,18 @@
             </div>
 
             <div style="margin-bottom: 20px;">
+                <label for="description" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Description</label>
+                <textarea name="description" id="description" rows="3"
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; resize: vertical;"
+                    placeholder="Enter description or additional details about the raw material">{{ old('description') }}</textarea>
+                @error('description')
+                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div style="margin-bottom: 20px;">
                 <label for="reorder_level" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Reorder Level <span style="color: red;">*</span></label>
-                <input type="number" name="reorder_level" id="reorder_level" value="{{ old('reorder_level', 0) }}" step="0.01" min="0" required
+                <input type="number" name="reorder_level" id="reorder_level" value="{{ old('reorder_level') !== null ? (int)old('reorder_level') : 0 }}" step="1" min="0" required
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
                     placeholder="Enter reorder level (stock threshold for reorder)">
                 <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Stock threshold for reorder</small>

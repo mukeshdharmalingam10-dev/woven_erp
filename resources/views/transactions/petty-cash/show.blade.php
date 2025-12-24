@@ -1,11 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'View Petty Cash - Woven_ERP')
+@section('title', 'View Daily Expense - Woven_ERP')
 
 @section('content')
 <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="color: #333; font-size: 22px; margin: 0;">Petty Cash Entry Details</h2>
+        <h2 style="color: #333; font-size: 22px; margin: 0;">Daily Expense Entry Details</h2>
         <div style="display: flex; gap: 10px;">
             @php
                 $user = auth()->user();

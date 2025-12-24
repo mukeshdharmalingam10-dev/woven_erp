@@ -14,6 +14,8 @@ class SalesInvoice extends Model
         'invoice_number',
         'invoice_date',
         'customer_id',
+        'mode_of_order',
+        'buyer_order_number',
         'billing_address',
         'shipping_address',
         'gst_percentage_overall',

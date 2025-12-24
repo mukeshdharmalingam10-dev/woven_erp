@@ -31,30 +31,29 @@
             
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; color: #666; font-weight: 500;">Supplier ID</label>
-                <div style="padding: 12px; background: #e9ecef; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; color: #333; font-weight: 500;">
-                    {{ $supplier->code }}
+                <input type="text" value="{{ $supplier->code }}" disabled
+                    style="width: 100%; max-width: 300px; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #f5f5f5; color: #333; font-weight: 500;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label for="supplier_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Supplier Name <span style="color: red;">*</span></label>
+                    <input type="text" name="supplier_name" id="supplier_name" value="{{ old('supplier_name', $supplier->supplier_name) }}" required
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter supplier name">
+                    @error('supplier_name')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
                 </div>
-                <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Supplier ID cannot be changed</small>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label for="supplier_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Supplier Name <span style="color: red;">*</span></label>
-                <input type="text" name="supplier_name" id="supplier_name" value="{{ old('supplier_name', $supplier->supplier_name) }}" required
-                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    placeholder="Enter supplier name">
-                @error('supplier_name')
-                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label for="contact_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Contact Name</label>
-                <input type="text" name="contact_name" id="contact_name" value="{{ old('contact_name', $supplier->contact_name) }}"
-                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    placeholder="Enter primary contact person name">
-                @error('contact_name')
-                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-                @enderror
+                <div>
+                    <label for="contact_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Contact Name</label>
+                    <input type="text" name="contact_name" id="contact_name" value="{{ old('contact_name', $supplier->contact_name) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter primary contact person name">
+                    @error('contact_name')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -82,24 +81,25 @@
         <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Address Information</h3>
             
-            <div style="margin-bottom: 15px;">
-                <label for="address_line_1" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Address Line 1</label>
-                <input type="text" name="address_line_1" id="address_line_1" value="{{ old('address_line_1', $supplier->address_line_1) }}"
-                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    placeholder="Enter address line 1">
-                @error('address_line_1')
-                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label for="address_line_2" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Address Line 2</label>
-                <input type="text" name="address_line_2" id="address_line_2" value="{{ old('address_line_2', $supplier->address_line_2) }}"
-                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    placeholder="Enter address line 2">
-                @error('address_line_2')
-                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-                @enderror
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label for="address_line_1" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Address Line 1</label>
+                    <input type="text" name="address_line_1" id="address_line_1" value="{{ old('address_line_1', $supplier->address_line_1) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter address line 1">
+                    @error('address_line_1')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="address_line_2" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Address Line 2</label>
+                    <input type="text" name="address_line_2" id="address_line_2" value="{{ old('address_line_2', $supplier->address_line_2) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter address line 2">
+                    @error('address_line_2')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
 
             @php
@@ -113,7 +113,7 @@
                 ];
             @endphp
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
                     <label for="city" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">City</label>
                     <input type="text" name="city" id="city" value="{{ old('city', $supplier->city) }}"
@@ -124,8 +124,8 @@
                     @enderror
                 </div>
                 <div>
-                    <label for="state" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">State</label>
-                    <select name="state" id="state"
+                    <label for="state" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">State <span style="color: red;">*</span></label>
+                    <select name="state" id="state" required
                         style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff;">
                         <option value="">Select state</option>
                         @foreach($states as $state)
@@ -136,6 +136,9 @@
                         <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
                     @enderror
                 </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                 <div>
                     <label for="postal_code" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Postal Code</label>
                     <input type="text" name="postal_code" id="postal_code" value="{{ old('postal_code', $supplier->postal_code) }}"
@@ -145,43 +148,102 @@
                         <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
                     @enderror
                 </div>
-            </div>
-
-            <div>
-                <label for="country" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Country</label>
-                <select name="country" id="country"
-                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff;">
-                    <option value="">Select country</option>
-                    @php
-                        $countries = [
-                            'India', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France',
-                            'Japan', 'China', 'Brazil', 'Russia', 'South Korea', 'Italy', 'Spain', 'Mexico',
-                            'Indonesia', 'Netherlands', 'Saudi Arabia', 'Turkey', 'Switzerland', 'Singapore',
-                            'Malaysia', 'Thailand', 'Philippines', 'Vietnam', 'Bangladesh', 'Pakistan', 'Sri Lanka',
-                            'Nepal', 'Myanmar', 'Other'
-                        ];
-                    @endphp
-                    @foreach($countries as $country)
-                        <option value="{{ $country }}" {{ old('country', $supplier->country) === $country ? 'selected' : '' }}>{{ $country }}</option>
-                    @endforeach
-                </select>
-                @error('country')
-                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-                @enderror
+                <div>
+                    <label for="country" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Country</label>
+                    <select name="country" id="country"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff;">
+                        <option value="">Select country</option>
+                        @php
+                            $countries = [
+                                'India', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France',
+                                'Japan', 'China', 'Brazil', 'Russia', 'South Korea', 'Italy', 'Spain', 'Mexico',
+                                'Indonesia', 'Netherlands', 'Saudi Arabia', 'Turkey', 'Switzerland', 'Singapore',
+                                'Malaysia', 'Thailand', 'Philippines', 'Vietnam', 'Bangladesh', 'Pakistan', 'Sri Lanka',
+                                'Nepal', 'Myanmar', 'Other'
+                            ];
+                        @endphp
+                        @foreach($countries as $country)
+                            <option value="{{ $country }}" {{ old('country', $supplier->country) === $country ? 'selected' : '' }}>{{ $country }}</option>
+                        @endforeach
+                    </select>
+                    @error('country')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
         </div>
 
         <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Business Information</h3>
             
-            <div style="margin-bottom: 20px;">
-                <label for="gst_number" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">GST Number</label>
-                <input type="text" name="gst_number" id="gst_number" value="{{ old('gst_number', $supplier->gst_number) }}"
-                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    placeholder="Enter GST number (if applicable)">
-                @error('gst_number')
-                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-                @enderror
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div>
+                    <label for="gst_number" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">GST Number</label>
+                    <input type="text" name="gst_number" id="gst_number" value="{{ old('gst_number', $supplier->gst_number) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter GST number (if applicable)">
+                    @error('gst_number')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="tax_type" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Tax Type</label>
+                    <select name="tax_type" id="tax_type"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff;">
+                        <option value="">Select Tax Type</option>
+                        <option value="Intra-State" {{ old('tax_type', $supplier->tax_type) === 'Intra-State' ? 'selected' : '' }}>Intra-State (CGST + SGST)</option>
+                        <option value="Inter-State" {{ old('tax_type', $supplier->tax_type) === 'Inter-State' ? 'selected' : '' }}>Inter-State (IGST)</option>
+                    </select>
+                    @error('tax_type')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+            <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Bank Information</h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label for="bank_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Bank Name</label>
+                    <input type="text" name="bank_name" id="bank_name" value="{{ old('bank_name', $supplier->bank_name) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter bank name">
+                    @error('bank_name')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="branch_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Branch Name</label>
+                    <input type="text" name="branch_name" id="branch_name" value="{{ old('branch_name', $supplier->branch_name) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter branch name">
+                    @error('branch_name')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <label for="ifsc_code" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">IFSC Code</label>
+                    <input type="text" name="ifsc_code" id="ifsc_code" value="{{ old('ifsc_code', $supplier->ifsc_code) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; text-transform: uppercase;"
+                        placeholder="Enter IFSC code" maxlength="11">
+                    @error('ifsc_code')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="account_number" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Account Number</label>
+                    <input type="text" name="account_number" id="account_number" value="{{ old('account_number', $supplier->account_number) }}"
+                        style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
+                        placeholder="Enter account number">
+                    @error('account_number')
+                        <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                    @enderror
+                </div>
             </div>
         </div>
 
@@ -215,7 +277,43 @@
         document.getElementById('postal_code').value = '{{ addslashes($supplier->postal_code ?? '') }}';
         document.getElementById('country').value = '{{ $supplier->country ?? '' }}';
         document.getElementById('gst_number').value = '{{ $supplier->gst_number ?? '' }}';
+        document.getElementById('tax_type').value = '{{ $supplier->tax_type ?? '' }}';
+        document.getElementById('bank_name').value = '{{ $supplier->bank_name ?? '' }}';
+        document.getElementById('ifsc_code').value = '{{ $supplier->ifsc_code ?? '' }}';
+        document.getElementById('account_number').value = '{{ $supplier->account_number ?? '' }}';
+        document.getElementById('branch_name').value = '{{ $supplier->branch_name ?? '' }}';
     }
+
+    // Get company state from server
+    const companyState = @json($companyInfo->state ?? null);
+
+    // Auto-select tax type based on company and supplier state
+    function updateTaxType() {
+        const supplierState = document.getElementById('state').value;
+        const taxTypeSelect = document.getElementById('tax_type');
+        
+        if (companyState && supplierState && taxTypeSelect) {
+            if (companyState === supplierState) {
+                // Same state - Intra-State
+                taxTypeSelect.value = 'Intra-State';
+            } else {
+                // Different state - Inter-State
+                taxTypeSelect.value = 'Inter-State';
+            }
+        }
+    }
+
+    // Listen for state change
+    document.addEventListener('DOMContentLoaded', function() {
+        const stateSelect = document.getElementById('state');
+        if (stateSelect) {
+            stateSelect.addEventListener('change', updateTaxType);
+            // Also check on page load if state is already selected
+            if (stateSelect.value) {
+                updateTaxType();
+            }
+        }
+    });
 </script>
 @endpush
 @endsection

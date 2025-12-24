@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Petty Cash Report</title>
+    <title>Daily Expense Report</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -75,7 +75,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>Petty Cash Report</h1>
+        <h1>Daily Expense Report</h1>
         <p>Generated on: {{ date('d-m-Y H:i:s') }}</p>
         @if($request->filled('start_date') || $request->filled('end_date'))
             <p>Period: 

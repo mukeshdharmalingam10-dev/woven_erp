@@ -28,14 +28,6 @@
 
         <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
             <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Basic Information</h3>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; color: #666; font-weight: 500;">Raw Material ID</label>
-                <div style="padding: 12px; background: #e9ecef; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; color: #333; font-weight: 500;">
-                    {{ $rawMaterial->code }}
-                </div>
-                <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Raw Material ID cannot be changed</small>
-            </div>
 
             <div style="margin-bottom: 20px;">
                 <label for="raw_material_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Raw Material Name <span style="color: red;">*</span></label>
@@ -72,8 +64,18 @@
             </div>
 
             <div style="margin-bottom: 20px;">
+                <label for="description" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Description</label>
+                <textarea name="description" id="description" rows="3"
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; resize: vertical;"
+                    placeholder="Enter description or additional details about the raw material">{{ old('description', $rawMaterial->description) }}</textarea>
+                @error('description')
+                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div style="margin-bottom: 20px;">
                 <label for="reorder_level" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Reorder Level <span style="color: red;">*</span></label>
-                <input type="number" name="reorder_level" id="reorder_level" value="{{ old('reorder_level', $rawMaterial->reorder_level) }}" step="0.01" min="0" required
+                <input type="number" name="reorder_level" id="reorder_level" value="{{ old('reorder_level') !== null ? (int)old('reorder_level') : (int)$rawMaterial->reorder_level }}" step="1" min="0" required
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
                     placeholder="Enter reorder level (stock threshold for reorder)">
                 <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Stock threshold for reorder</small>
@@ -104,7 +106,7 @@
         // Restore original values
         document.getElementById('raw_material_name').value = '{{ addslashes($rawMaterial->raw_material_name) }}';
         document.getElementById('unit_of_measure').value = '{{ addslashes($rawMaterial->unit_of_measure) }}';
-        document.getElementById('reorder_level').value = '{{ $rawMaterial->reorder_level }}';
+        document.getElementById('reorder_level').value = '{{ (int)$rawMaterial->reorder_level }}';
     }
 </script>
 @endpush

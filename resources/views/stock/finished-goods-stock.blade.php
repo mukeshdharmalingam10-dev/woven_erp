@@ -59,13 +59,13 @@
                                 {{ $data['production_count'] ?? 0 }}
                             </td>
                             <td style="padding: 12px; text-align: right; color: #28a745; font-weight: 500;">
-                                {{ number_format($data['total_produced'], 2) }}
+                                {{ number_format($data['total_produced'], 0) }}
                             </td>
                             <td style="padding: 12px; text-align: right; color: #dc3545; font-weight: 500;">
-                                {{ number_format($data['total_sold'], 2) }}
+                                {{ number_format($data['total_sold'], 0) }}
                             </td>
                             <td style="padding: 12px; text-align: right; color: #333; font-weight: 600; font-size: 15px;">
-                                {{ number_format($data['current_stock'], 2) }}
+                                {{ number_format($data['current_stock'], 0) }}
                             </td>
                             <td style="padding: 12px; text-align: center;">
                                 @if($data['current_stock'] <= 0)

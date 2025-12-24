@@ -92,8 +92,8 @@
 
     <div>
         <label for="quantity" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Quantity <span style="color:red">*</span></label>
-        <input type="number" step="0.001" min="0" name="quantity" id="quantity" required
-               value="{{ old('quantity', $editing ? $stockTransaction->quantity : '') }}"
+        <input type="number" step="1" min="0" name="quantity" id="quantity" required
+               value="{{ old('quantity', $editing ? (int)$stockTransaction->quantity : '') }}"
                style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
         @error('quantity')
             <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>

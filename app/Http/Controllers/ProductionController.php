@@ -152,7 +152,7 @@ class ProductionController extends Controller
         return $request->validate([
             'work_order_id' => ['nullable', 'exists:work_orders,id'],
             'product_id' => ['required', 'exists:products,id'],
-            'produced_quantity' => ['required', 'numeric', 'min:0.0001'],
+            'produced_quantity' => ['required', 'integer', 'min:1'],
             'weight_per_unit' => ['required', 'numeric', 'min:0.0001'],
             'remarks' => ['nullable', 'string'],
         ]);
@@ -164,6 +164,8 @@ class ProductionController extends Controller
         $weightPerUnit = (float) $weightPerUnit;
 
         $totalWeight = $producedQuantity * $weightPerUnit;
+        // Round to whole number
+        $totalWeight = round($totalWeight);
 
         return [
             'total_weight' => $totalWeight,

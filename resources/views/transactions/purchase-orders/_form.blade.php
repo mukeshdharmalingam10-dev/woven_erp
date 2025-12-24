@@ -2,61 +2,71 @@
     $editing = isset($purchaseOrder);
 @endphp
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; margin-bottom: 25px;">
-    <div>
-        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Purchase Order Number</label>
+<div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+    <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Basic Information</h3>
+    
+    <!-- First Row: Purchase Order Number (full width, auto-generated) -->
+    <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Purchase Order Number</label>
         <input type="text" class="form-control" value="{{ $editing ? $purchaseOrder->po_number : 'Auto-generated (PUR001, PUR002, etc.)' }}" disabled
-            style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
+            style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #e9ecef;">
     </div>
 
-    <div>
-        <label for="supplier_id" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Supplier Name <span style="color:red">*</span></label>
-        <select name="supplier_id" id="supplier_id" required
-            style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-            <option value="">-- Select Supplier --</option>
-            @foreach($suppliers as $supplier)
-                <option value="{{ $supplier->id }}"
-                    data-state="{{ $supplier->state ?? '' }}"
-                    {{ old('supplier_id', $editing ? $purchaseOrder->supplier_id : '') == $supplier->id ? 'selected' : '' }}>
-                    {{ $supplier->supplier_name }} ({{ $supplier->code }})
-                </option>
-            @endforeach
-        </select>
-        @error('supplier_id')
-            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
-        @enderror
+    <!-- Second Row: Supplier Name and Purchase Date (side by side) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div>
+            <label for="supplier_id" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Supplier Name <span style="color: red;">*</span></label>
+            <select name="supplier_id" id="supplier_id" required
+                style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff;">
+                <option value="">-- Select Supplier --</option>
+                @foreach($suppliers as $supplier)
+                    <option value="{{ $supplier->id }}"
+                        data-state="{{ $supplier->state ?? '' }}"
+                        {{ old('supplier_id', $editing ? $purchaseOrder->supplier_id : '') == $supplier->id ? 'selected' : '' }}>
+                        {{ $supplier->supplier_name }} ({{ $supplier->code }})
+                    </option>
+                @endforeach
+            </select>
+            @error('supplier_id')
+                <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <div>
+            <label for="purchase_date" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Purchase Date <span style="color: red;">*</span></label>
+            <input type="date" name="purchase_date" id="purchase_date" required
+                   value="{{ old('purchase_date', $editing ? optional($purchaseOrder->purchase_date)->format('Y-m-d') : now()->format('Y-m-d')) }}"
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+            @error('purchase_date')
+                <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+            @enderror
+        </div>
     </div>
 
-    <div>
-        <label for="purchase_date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Purchase Date <span style="color:red">*</span></label>
-        <input type="date" name="purchase_date" id="purchase_date" required
-               value="{{ old('purchase_date', $editing ? optional($purchaseOrder->purchase_date)->format('Y-m-d') : now()->format('Y-m-d')) }}"
-               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-        @error('purchase_date')
-            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
-        @enderror
-    </div>
+    <!-- Third Row: Delivery Date and GST Classification (side by side) -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+            <label for="delivery_date" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Delivery Date</label>
+            <input type="date" name="delivery_date" id="delivery_date"
+                   value="{{ old('delivery_date', $editing && $purchaseOrder->delivery_date ? $purchaseOrder->delivery_date->format('Y-m-d') : '') }}"
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+            @error('delivery_date')
+                <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+            @enderror
+        </div>
 
-    <div>
-        <label for="delivery_date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Delivery Date</label>
-        <input type="date" name="delivery_date" id="delivery_date"
-               value="{{ old('delivery_date', $editing && $purchaseOrder->delivery_date ? $purchaseOrder->delivery_date->format('Y-m-d') : '') }}"
-               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-        @error('delivery_date')
-            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
-        @enderror
-    </div>
-
-    <div>
-        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">GST Classification</label>
-        <input type="text" id="gst_classification_view" disabled
-               value="@if($editing && $purchaseOrder->gst_classification) {{ $purchaseOrder->gst_classification === 'CGST_SGST' ? 'CGST + SGST' : 'IGST' }} @else Auto-select based on supplier and company location @endif"
-               placeholder="Auto-select based on supplier and company location"
-               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
+        <div>
+            <label style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">GST Classification</label>
+            <input type="text" id="gst_classification_view" disabled
+                   value="@if($editing && $purchaseOrder->gst_classification) {{ $purchaseOrder->gst_classification === 'CGST_SGST' ? 'CGST + SGST' : 'IGST' }} @else Auto-select based on supplier and company location @endif"
+                   placeholder="Auto-select based on supplier and company location"
+                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #e9ecef;">
+        </div>
     </div>
 </div>
 
-<h3 style="margin-bottom: 12px; font-size: 18px; color: #333;">Raw Materials</h3>
+<div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+    <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Raw Materials</h3>
 
 <div style="overflow-x: auto; margin-bottom: 20px;">
     <table id="itemsTable" style="width: 100%; border-collapse: collapse;">
@@ -66,21 +76,18 @@
                 <th style="padding: 10px; text-align: right;">Quantity</th>
                 <th style="padding: 10px; text-align: right;">Unit Price</th>
                 <th style="padding: 10px; text-align: right;">Total Amount</th>
-                <th style="padding: 10px; text-align: right;">GST %</th>
-                <th style="padding: 10px; text-align: right;">GST Amount</th>
-                <th style="padding: 10px; text-align: right;">Line Total</th>
                 <th style="padding: 10px; text-align: center;">Action</th>
             </tr>
         </thead>
         <tbody>
             @php
-                $oldItems = old('items', $editing ? $purchaseOrder->items->toArray() : [['raw_material_id' => '', 'quantity' => '', 'unit_price' => '', 'gst_percentage' => '']]);
+                $oldItems = old('items', $editing ? $purchaseOrder->items->toArray() : [['raw_material_id' => '', 'quantity' => '', 'unit_price' => '']]);
             @endphp
             @foreach($oldItems as $index => $item)
                 <tr>
                     <td style="padding: 8px;">
                         <select name="items[{{ $index }}][raw_material_id]" required
-                                style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                                style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; background: #fff;">
                             <option value="">-- Select --</option>
                             @foreach($rawMaterials as $rm)
                                 <option value="{{ $rm->id }}"
@@ -91,40 +98,22 @@
                         </select>
                     </td>
                     <td style="padding: 8px;">
-                        <input type="number" step="0.001" min="0" name="items[{{ $index }}][quantity]"
-                               value="{{ $item['quantity'] ?? '' }}"
+                        <input type="number" step="1" min="0" name="items[{{ $index }}][quantity]"
+                               value="{{ isset($item['quantity']) ? (int)$item['quantity'] : '' }}"
                                class="item-quantity"
-                               style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
+                               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; text-align: right;">
                     </td>
                     <td style="padding: 8px;">
                         <input type="number" step="0.01" min="0" name="items[{{ $index }}][unit_price]"
                                value="{{ $item['unit_price'] ?? '' }}"
                                class="item-unit-price"
-                               style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
+                               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; text-align: right;">
                     </td>
                     <td style="padding: 8px;">
                         <input type="text" readonly
                                class="item-total-amount"
                                value=""
-                               style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right; background: #f5f5f5;">
-                    </td>
-                    <td style="padding: 8px;">
-                        <input type="number" step="0.01" min="0" name="items[{{ $index }}][gst_percentage]"
-                               value="{{ $item['gst_percentage'] ?? '' }}"
-                               class="item-gst-percentage"
-                               style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
-                    </td>
-                    <td style="padding: 8px;">
-                        <input type="text" readonly
-                               class="item-gst-amount"
-                               value=""
-                               style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right; background: #f5f5f5;">
-                    </td>
-                    <td style="padding: 8px;">
-                        <input type="text" readonly
-                               class="item-line-total"
-                               value=""
-                               style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right; background: #f5f5f5;">
+                               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; text-align: right; background: #e9ecef;">
                     </td>
                     <td style="padding: 8px; text-align: center;">
                         <button type="button" class="btn-remove-row" onclick="removeItemRow(this)"
@@ -142,6 +131,78 @@
         style="padding: 10px 18px; background: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px;">
     <i class="fas fa-plus"></i> Add Row
 </button>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; margin-bottom: 20px;">
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px;">
+        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Tax Type</h3>
+        <div style="display: flex; gap: 20px;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="radio" name="tax_type" value="CGST_SGST" id="tax_type_cgst_sgst" 
+                       {{ old('tax_type', $editing && $purchaseOrder->gst_classification ? $purchaseOrder->gst_classification : 'CGST_SGST') === 'CGST_SGST' ? 'checked' : '' }}
+                       style="width: 18px; height: 18px; cursor: pointer;">
+                <span style="font-weight: 500; color: #333;">CGST and SGST</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="radio" name="tax_type" value="IGST" id="tax_type_igst"
+                       {{ old('tax_type', $editing && $purchaseOrder->gst_classification ? $purchaseOrder->gst_classification : 'CGST_SGST') === 'IGST' ? 'checked' : '' }}
+                       style="width: 18px; height: 18px; cursor: pointer;">
+                <span style="font-weight: 500; color: #333;">IGST</span>
+            </label>
+        </div>
+        <input type="hidden" name="gst_classification" id="gst_classification">
+    </div>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px;">
+        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Amount</h3>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="gst_percentage" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">GST *</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="number" step="0.01" min="0" name="gst_percentage" id="gst_percentage" readonly
+                       value="{{ old('gst_percentage', $editing && $purchaseOrder->gst_percentage_overall ? $purchaseOrder->gst_percentage_overall : '18') }}"
+                       placeholder="Enter In (%)"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
+                <input type="text" readonly id="gst_amount"
+                       value="0"
+                       placeholder="GST Amount"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+            </div>
+        </div>
+
+        <div id="cgst_sgst_section" style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">CGST :</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" readonly id="cgst_percentage" value="0"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+                <input type="text" readonly id="cgst_amount" value="0"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+            </div>
+            <label style="display: block; margin-bottom: 6px; margin-top: 10px; font-weight: 600; color: #333;">SGST :</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" readonly id="sgst_percentage" value="0"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+                <input type="text" readonly id="sgst_amount" value="0"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+            </div>
+        </div>
+
+        <div id="igst_section" style="margin-bottom: 15px; display: none;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">IGST :</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <input type="text" readonly id="igst_percentage" value="0"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+                <input type="text" readonly id="igst_amount" value="0"
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+            </div>
+        </div>
+
+        <div>
+            <label for="net_amount" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Net Amount :</label>
+            <input type="text" readonly id="net_amount" value="0"
+                   style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5; text-align: right;">
+        </div>
+    </div>
+</div>
 
 <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
     <div style="max-width: 360px; width: 100%; background: #f9fafb; padding: 16px 18px; border-radius: 8px; border: 1px solid #e5e7eb;">
@@ -205,38 +266,63 @@
     function recalcRow(row) {
         var qty = parseNumber(row.querySelector('.item-quantity').value);
         var price = parseNumber(row.querySelector('.item-unit-price').value);
-        var gstPerc = parseNumber(row.querySelector('.item-gst-percentage').value);
-
         var total = qty * price;
-        var gstAmt = gstPerc > 0 ? (total * gstPerc) / 100 : 0;
-        var lineTotal = total + gstAmt;
-
         row.querySelector('.item-total-amount').value = total.toFixed(2);
-        row.querySelector('.item-gst-amount').value = gstAmt.toFixed(2);
-        row.querySelector('.item-line-total').value = lineTotal.toFixed(2);
     }
 
     function recalcTotals() {
         var rows = document.querySelectorAll('#itemsTable tbody tr');
         var totalRaw = 0;
-        var totalGst = 0;
 
         rows.forEach(function (row) {
             totalRaw += parseNumber(row.querySelector('.item-total-amount').value);
-            totalGst += parseNumber(row.querySelector('.item-gst-amount').value);
         });
 
+        var gstPercentage = parseNumber(document.getElementById('gst_percentage').value);
+        var gstAmount = gstPercentage > 0 ? (totalRaw * gstPercentage) / 100 : 0;
+        
+        var taxTypeElement = document.querySelector('input[name="tax_type"]:checked');
+        var taxType = taxTypeElement ? taxTypeElement.value : 'CGST_SGST';
+        document.getElementById('gst_classification').value = taxType;
+
+        var cgstAmount = 0, sgstAmount = 0, igstAmount = 0;
+        var cgstPercentage = 0, sgstPercentage = 0, igstPercentage = 0;
+
+        if (taxType === 'CGST_SGST') {
+            cgstPercentage = gstPercentage / 2;
+            sgstPercentage = gstPercentage / 2;
+            cgstAmount = gstAmount / 2;
+            sgstAmount = gstAmount / 2;
+            document.getElementById('cgst_sgst_section').style.display = 'block';
+            document.getElementById('igst_section').style.display = 'none';
+        } else {
+            igstPercentage = gstPercentage;
+            igstAmount = gstAmount;
+            document.getElementById('cgst_sgst_section').style.display = 'none';
+            document.getElementById('igst_section').style.display = 'block';
+        }
+
+        var grandTotal = totalRaw + gstAmount;
+
         document.getElementById('total_raw_material_amount_view').innerText = totalRaw.toFixed(2);
-        document.getElementById('total_gst_amount_view').innerText = totalGst.toFixed(2);
-        document.getElementById('grand_total_view').innerText = (totalRaw + totalGst).toFixed(2);
+        document.getElementById('total_gst_amount_view').innerText = gstAmount.toFixed(2);
+        document.getElementById('grand_total_view').innerText = grandTotal.toFixed(2);
+        document.getElementById('gst_amount').value = gstAmount.toFixed(2);
+        document.getElementById('cgst_percentage').value = cgstPercentage.toFixed(2);
+        document.getElementById('cgst_amount').value = cgstAmount.toFixed(2);
+        document.getElementById('sgst_percentage').value = sgstPercentage.toFixed(2);
+        document.getElementById('sgst_amount').value = sgstAmount.toFixed(2);
+        document.getElementById('igst_percentage').value = igstPercentage.toFixed(2);
+        document.getElementById('igst_amount').value = igstAmount.toFixed(2);
+        document.getElementById('net_amount').value = grandTotal.toFixed(2);
 
         document.getElementById('total_raw_material_amount').value = totalRaw.toFixed(2);
-        document.getElementById('total_gst_amount').value = totalGst.toFixed(2);
-        document.getElementById('grand_total').value = (totalRaw + totalGst).toFixed(2);
+        document.getElementById('total_gst_amount').value = gstAmount.toFixed(2);
+        document.getElementById('grand_total').value = grandTotal.toFixed(2);
     }
 
     function attachRowEvents(row) {
-        ['item-quantity', 'item-unit-price', 'item-gst-percentage'].forEach(function (cls) {
+        ['item-quantity', 'item-unit-price'].forEach(function (cls) {
             var input = row.querySelector('.' + cls);
             if (input) {
                 input.addEventListener('input', function () {
@@ -255,7 +341,7 @@
         tr.innerHTML = `
             <td style="padding: 8px;">
                 <select name="items[${index}][raw_material_id]" required
-                        style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                        style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; background: #fff;">
                     <option value="">-- Select --</option>
                     @foreach($rawMaterials as $rm)
                         <option value="{{ $rm->id }}">{{ $rm->raw_material_name }} ({{ $rm->code }})</option>
@@ -263,37 +349,20 @@
                 </select>
             </td>
             <td style="padding: 8px;">
-                <input type="number" step="0.001" min="0" name="items[${index}][quantity]"
+                <input type="number" step="1" min="0" name="items[${index}][quantity]"
                        class="item-quantity"
-                       style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; text-align: right;">
             </td>
             <td style="padding: 8px;">
                 <input type="number" step="0.01" min="0" name="items[${index}][unit_price]"
                        class="item-unit-price"
-                       style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; text-align: right;">
             </td>
             <td style="padding: 8px;">
                 <input type="text" readonly
                        class="item-total-amount"
                        value=""
-                       style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right; background: #f5f5f5;">
-            </td>
-            <td style="padding: 8px;">
-                <input type="number" step="0.01" min="0" name="items[${index}][gst_percentage]"
-                       class="item-gst-percentage"
-                       style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right;">
-            </td>
-            <td style="padding: 8px;">
-                <input type="text" readonly
-                       class="item-gst-amount"
-                       value=""
-                       style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right; background: #f5f5f5;">
-            </td>
-            <td style="padding: 8px;">
-                <input type="text" readonly
-                       class="item-line-total"
-                       value=""
-                       style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; text-align: right; background: #f5f5f5;">
+                       style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; font-size: 14px; text-align: right; background: #e9ecef;">
             </td>
             <td style="padding: 8px; text-align: center;">
                 <button type="button" class="btn-remove-row" onclick="removeItemRow(this)"
@@ -319,14 +388,55 @@
         recalcTotals();
     }
 
+    // Handle tax type change
+    document.querySelectorAll('input[name="tax_type"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            recalcTotals();
+        });
+    });
+
+    // Handle GST percentage change
+    document.getElementById('gst_percentage').addEventListener('input', function() {
+        recalcTotals();
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
+        // Initialize GST percentage to 18 if empty
+        var gstPercentageField = document.getElementById('gst_percentage');
+        if (!gstPercentageField.value || gstPercentageField.value === '') {
+            gstPercentageField.value = '18';
+        }
+        
         // Initialize GST Classification
         updateGstClassification();
+        
+        // Initialize tax type based on existing data
+        @if($editing && $purchaseOrder->gst_classification)
+            var existingGstType = '{{ $purchaseOrder->gst_classification }}';
+            if (existingGstType === 'CGST_SGST') {
+                document.getElementById('tax_type_cgst_sgst').checked = true;
+            } else if (existingGstType === 'IGST') {
+                document.getElementById('tax_type_igst').checked = true;
+            }
+        @endif
         
         // Update GST Classification when supplier changes
         var supplierSelect = document.getElementById('supplier_id');
         if (supplierSelect) {
-            supplierSelect.addEventListener('change', updateGstClassification);
+            supplierSelect.addEventListener('change', function() {
+                updateGstClassification();
+                // Auto-select tax type based on classification
+                var gstClassificationView = document.getElementById('gst_classification_view');
+                if (gstClassificationView) {
+                    var classification = gstClassificationView.value;
+                    if (classification.includes('CGST')) {
+                        document.getElementById('tax_type_cgst_sgst').checked = true;
+                    } else if (classification.includes('IGST')) {
+                        document.getElementById('tax_type_igst').checked = true;
+                    }
+                    recalcTotals();
+                }
+            });
         }
         
         // Initialize item rows
@@ -335,6 +445,8 @@
             attachRowEvents(row);
             recalcRow(row);
         });
+        
+        // Initialize totals with existing data
         recalcTotals();
     });
 </script>

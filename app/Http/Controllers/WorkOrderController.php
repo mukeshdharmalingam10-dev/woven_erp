@@ -82,6 +82,7 @@ class WorkOrderController extends Controller
             'customer_id' => $data['customer_id'],
             'product_id' => $data['product_id'],
             'quantity_to_produce' => $data['quantity_to_produce'],
+            'per_kg_weight' => $data['per_kg_weight'] ?? null,
             'work_order_date' => $data['work_order_date'],
             'status' => WorkOrder::STATUS_OPEN,
         ]);
@@ -120,6 +121,7 @@ class WorkOrderController extends Controller
         $workOrder->customer_id = $data['customer_id'];
         $workOrder->product_id = $data['product_id'];
         $workOrder->quantity_to_produce = $data['quantity_to_produce'];
+        $workOrder->per_kg_weight = $data['per_kg_weight'] ?? null;
         $workOrder->work_order_date = $data['work_order_date'];
 
         // Auto update status: completed if total production quantity >= quantity_to_produce
@@ -149,7 +151,8 @@ class WorkOrderController extends Controller
         return $request->validate([
             'customer_id' => ['required', 'exists:customers,id'],
             'product_id' => ['required', 'exists:products,id'],
-            'quantity_to_produce' => ['required', 'numeric', 'min:0.0001'],
+            'quantity_to_produce' => ['required', 'integer', 'min:1'],
+            'per_kg_weight' => ['nullable', 'numeric', 'min:0'],
             'work_order_date' => ['required', 'date'],
         ]);
     }

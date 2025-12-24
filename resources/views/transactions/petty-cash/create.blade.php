@@ -1,11 +1,11 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Create Petty Cash - Woven_ERP')
+@section('title', 'Create Daily Expense - Woven_ERP')
 
 @section('content')
 <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="color: #333; font-size: 22px; margin: 0;">Create Petty Cash Entry</h2>
+        <h2 style="color: #333; font-size: 22px; margin: 0;">Create Daily Expense Entry</h2>
         <a href="{{ route('petty-cash.index') }}" style="padding: 8px 16px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 5px; font-size: 14px;">
             <i class="fas fa-arrow-left"></i> Back to List
         </a>
@@ -31,7 +31,7 @@
                 Cancel
             </a>
             <button type="submit" style="padding: 10px 22px; background: #667eea; color: white; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;">
-                <i class="fas fa-save"></i> Save Petty Cash Entry
+                <i class="fas fa-save"></i> Save Daily Expense Entry
             </button>
         </div>
     </form>

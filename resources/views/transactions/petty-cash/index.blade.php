@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Petty Cash - Woven_ERP')
+@section('title', 'Daily Expense - Woven_ERP')
 
 @section('content')
 @php
@@ -13,10 +13,10 @@
 
 <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h2 style="color: #333; font-size: 24px; margin: 0;">Petty Cash</h2>
+        <h2 style="color: #333; font-size: 24px; margin: 0;">Daily Expense</h2>
         @if($canWrite)
             <a href="{{ route('petty-cash.create') }}" style="padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fas fa-plus"></i> New Petty Cash Entry
+                <i class="fas fa-plus"></i> New Daily Expense Entry
             </a>
         @endif
     </div>
@@ -76,7 +76,7 @@
                                         </a>
                                     @endif
                                     @if($canDelete)
-                                        <form action="{{ route('petty-cash.destroy', $entry->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this petty cash entry?');">
+                                        <form action="{{ route('petty-cash.destroy', $entry->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this daily expense entry?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;">
@@ -97,10 +97,10 @@
         </div>
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
-            <p style="font-size: 18px; margin-bottom: 20px;">No petty cash entries found.</p>
+            <p style="font-size: 18px; margin-bottom: 20px;">No daily expense entries found.</p>
             @if($canWrite)
                 <a href="{{ route('petty-cash.create') }}" style="padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 500;">
-                    Create First Petty Cash Entry
+                    Create First Daily Expense Entry
                 </a>
             @endif
         </div>

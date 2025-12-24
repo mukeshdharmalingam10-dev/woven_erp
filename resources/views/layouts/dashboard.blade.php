@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Dashboard - Woven_ERP')</title>
+    <title>@yield('title', 'Dashboard - ' . ($companyName ?? 'Woven_ERP'))</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -484,7 +484,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="logo">Woven_ERP</div>
+                <div class="logo">{{ $companyName ?? 'Woven_ERP' }}</div>
                 <button class="menu-toggle" id="sidebarToggleBtn" onclick="handleSidebarToggle()" title="Toggle Sidebar">
                     <i class="fas fa-bars" id="sidebarToggleIcon"></i>
                 </button>
@@ -619,27 +619,27 @@
                 </div>
                 @endif
 
-                {{-- Petty Cash Master Menu --}}
+                {{-- Daily Expense Master Menu --}}
                 @php
                     $hasPettyCashMasterAccess = $user->canAccessPage('petty-cash.index');
                 @endphp
                 @if($hasPettyCashMasterAccess)
-                <div class="menu-item-header" onclick="togglePettyCashMasterMenu()" id="pettyCashMasterHeader" style="margin-top: 10px;" title="Petty Cash Master">
+                <div class="menu-item-header" onclick="togglePettyCashMasterMenu()" id="pettyCashMasterHeader" style="margin-top: 10px;" title="Daily Expense Master">
                     <i class="fas fa-wallet menu-header-icon"></i>
-                    <span>Petty Cash Master</span>
+                    <span>Daily Expense Master</span>
                     <i class="fas fa-chevron-down arrow"></i>
                 </div>
                 <div class="menu-sub-items" id="pettyCashMasterMenu">
                         @if($user->canAccessPage('petty-cash.index'))
-                    <a href="{{ route('petty-cash.index') }}" class="menu-item" title="Petty Cash Form">
+                    <a href="{{ route('petty-cash.index') }}" class="menu-item" title="Daily Expense Form">
                         <i class="fas fa-file-alt"></i>
-                        <span>Petty Cash Form</span>
+                        <span>Daily Expense Form</span>
                     </a>
                         @endif
                         @if($user->canAccessPage('petty-cash.index'))
-                    <a href="{{ route('petty-cash.report') }}" class="menu-item" title="Petty Cash Report">
+                    <a href="{{ route('petty-cash.report') }}" class="menu-item" title="Daily Expense Report">
                         <i class="fas fa-chart-line"></i>
-                        <span>Petty Cash Report</span>
+                        <span>Daily Expense Report</span>
                     </a>
                         @endif
                 </div>
@@ -694,12 +694,6 @@
                 <a href="{{ route('sales-invoices.index') }}" class="menu-item" title="Sales Invoices">
                     <i class="fas fa-file-invoice-dollar"></i>
                     <span>Sales Invoices</span>
-                </a>
-                @endif
-                @if($user->canAccessPage('daily-expenses.index'))
-                <a href="{{ route('daily-expenses.index') }}" class="menu-item" title="Daily Expenses">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span>Daily Expenses</span>
                 </a>
                 @endif
                 {{-- Stock Menu --}}
@@ -1057,7 +1051,7 @@
             }
         }
 
-        // Toggle Petty Cash Master menu
+        // Toggle Daily Expense Master menu
         function togglePettyCashMasterMenu() {
             const pettyCashMasterMenu = document.getElementById('pettyCashMasterMenu');
             const pettyCashMasterHeader = document.getElementById('pettyCashMasterHeader');
@@ -1163,7 +1157,7 @@
                 }
             }
 
-            // Petty Cash Master menu
+            // Daily Expense Master menu
             const pettyCashMasterSavedState = localStorage.getItem('pettyCashMasterMenuCollapsed');
             if (pettyCashMasterSavedState === 'true') {
                 const pettyCashMasterMenu = document.getElementById('pettyCashMasterMenu');

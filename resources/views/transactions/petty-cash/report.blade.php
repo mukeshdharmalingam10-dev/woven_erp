@@ -1,6 +1,6 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Petty Cash Report - Woven_ERP')
+@section('title', 'Daily Expense Report - Woven_ERP')
 
 @section('content')
 @php
@@ -11,7 +11,7 @@
 
 <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h2 style="color: #333; font-size: 24px; margin: 0;">Petty Cash Report</h2>
+        <h2 style="color: #333; font-size: 24px; margin: 0;">Daily Expense Report</h2>
         <a href="{{ route('petty-cash.index') }}" style="padding: 8px 16px; background: #6c757d; color: #fff; text-decoration: none; border-radius: 5px; font-size: 14px;">
             <i class="fas fa-arrow-left"></i> Back to List
         </a>

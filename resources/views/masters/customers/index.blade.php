@@ -36,7 +36,7 @@
     {{-- Search Form --}}
     <form method="GET" action="{{ route('customers.index') }}" style="margin-bottom: 20px;">
         <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, code, contact, email, phone, or GST number..." 
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, code, contacts, email, phone, GST, or bank details..." 
                 style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
             <button type="submit" style="padding: 10px 20px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 <i class="fas fa-search"></i> Search
@@ -57,10 +57,10 @@
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">S.No</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Customer ID</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Customer/Company Name</th>
-                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Contact Name</th>
+                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Contact Name 1</th>
+                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Contact Name 2</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Phone</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Email</th>
-                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">City</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">GST Number</th>
                         <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">Actions</th>
                     </tr>
@@ -71,10 +71,10 @@
                             <td style="padding: 12px; color: #666;">{{ ($customers->currentPage() - 1) * $customers->perPage() + $loop->iteration }}</td>
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $customer->code }}</td>
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $customer->customer_name }}</td>
-                            <td style="padding: 12px; color: #666;">{{ $customer->contact_name ?? 'N/A' }}</td>
+                            <td style="padding: 12px; color: #666;">{{ $customer->contact_name_1 ?? 'N/A' }}</td>
+                            <td style="padding: 12px; color: #666;">{{ $customer->contact_name_2 ?? 'N/A' }}</td>
                             <td style="padding: 12px; color: #666;">{{ $customer->phone_number ?? 'N/A' }}</td>
                             <td style="padding: 12px; color: #666;">{{ $customer->email ?? 'N/A' }}</td>
-                            <td style="padding: 12px; color: #666;">{{ $customer->billing_city ?? 'N/A' }}</td>
                             <td style="padding: 12px; color: #666;">{{ $customer->gst_number ?? 'N/A' }}</td>
                             <td style="padding: 12px; text-align: center;">
                                 <div style="display: flex; gap: 8px; justify-content: center;">

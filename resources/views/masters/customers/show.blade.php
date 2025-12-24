@@ -20,16 +20,16 @@
         <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Basic Information</h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div>
-                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Customer ID</label>
-                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0; font-weight: 500;">{{ $customer->code }}</p>
-            </div>
-            <div>
                 <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Customer/Company Name</label>
                 <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->customer_name }}</p>
             </div>
             <div>
-                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Contact Name</label>
-                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->contact_name ?? 'N/A' }}</p>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Contact Name 1</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->contact_name_1 ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Contact Name 2</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->contact_name_2 ?? 'N/A' }}</p>
             </div>
             <div>
                 <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Phone Number</label>
@@ -45,53 +45,57 @@
             </div>
         </div>
     </div>
-
     <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Billing Address</h3>
-        <div>
-            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Full Billing Address</label>
-            <p style="color: #333; font-size: 16px; margin: 0; line-height: 1.6;">
-                @if($customer->billing_address_line_1)
-                    {{ $customer->billing_address_line_1 }}<br>
-                    @if($customer->billing_address_line_2)
-                        {{ $customer->billing_address_line_2 }}<br>
-                    @endif
-                    @if($customer->billing_city || $customer->billing_state || $customer->billing_postal_code)
-                        {{ $customer->billing_city }}{{ $customer->billing_city && $customer->billing_state ? ', ' : '' }}{{ $customer->billing_state }}{{ ($customer->billing_city || $customer->billing_state) && $customer->billing_postal_code ? ' - ' : '' }}{{ $customer->billing_postal_code }}<br>
-                    @endif
-                    @if($customer->billing_country)
-                        {{ $customer->billing_country }}
-                    @endif
-                @else
-                    N/A
-                @endif
-            </p>
+        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Address Information</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Address Line 1</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->billing_address_line_1 ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Address Line 2</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->billing_address_line_2 ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">City</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->billing_city ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">State</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->billing_state ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Postal Code</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->billing_postal_code ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Country</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->billing_country ?? 'N/A' }}</p>
+            </div>
         </div>
     </div>
 
     <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Shipping Address</h3>
-        <div>
-            <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Full Shipping Address</label>
-            <p style="color: #333; font-size: 16px; margin: 0; line-height: 1.6;">
-                @if($customer->shipping_address_line_1)
-                    {{ $customer->shipping_address_line_1 }}<br>
-                    @if($customer->shipping_address_line_2)
-                        {{ $customer->shipping_address_line_2 }}<br>
-                    @endif
-                    @if($customer->shipping_city || $customer->shipping_state || $customer->shipping_postal_code)
-                        {{ $customer->shipping_city }}{{ $customer->shipping_city && $customer->shipping_state ? ', ' : '' }}{{ $customer->shipping_state }}{{ ($customer->shipping_city || $customer->shipping_state) && $customer->shipping_postal_code ? ' - ' : '' }}{{ $customer->shipping_postal_code }}<br>
-                    @endif
-                    @if($customer->shipping_country)
-                        {{ $customer->shipping_country }}
-                    @endif
-                @else
-                    N/A
-                @endif
-            </p>
+        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Bank Details</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Bank Name</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->bank_name ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">IFSC Code</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->ifsc_code ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Account Number</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->account_number ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Branch Name</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $customer->bank_branch_name ?? 'N/A' }}</p>
+            </div>
         </div>
     </div>
-
 
     <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
         <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Additional Information</h3>

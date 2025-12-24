@@ -55,10 +55,21 @@
 
     <div>
         <label for="quantity_to_produce" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Quantity to be Produced <span style="color:red">*</span></label>
-        <input type="number" step="0.001" min="0" name="quantity_to_produce" id="quantity_to_produce" required
-               value="{{ old('quantity_to_produce', $editing ? $workOrder->quantity_to_produce : '') }}"
+        <input type="number" step="1" min="0" name="quantity_to_produce" id="quantity_to_produce" required
+               value="{{ old('quantity_to_produce', $editing ? (int)$workOrder->quantity_to_produce : '') }}"
                style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
         @error('quantity_to_produce')
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div>
+        <label for="per_kg_weight" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Per Kg Weight</label>
+        <input type="number" step="0.001" min="0" name="per_kg_weight" id="per_kg_weight"
+               value="{{ old('per_kg_weight', $editing && $workOrder->per_kg_weight !== null ? $workOrder->per_kg_weight : '') }}"
+               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+        <small style="color: #666; font-size: 12px; display: block; margin-top: 4px;">Optional: specify weight per kg for this work order.</small>
+        @error('per_kg_weight')
             <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
         @enderror
     </div>

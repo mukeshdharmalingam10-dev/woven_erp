@@ -14,6 +14,7 @@ class Product extends Model
         'product_name',
         'code',
         'unit_of_measure',
+        'description',
         'organization_id',
         'branch_id',
         'created_by',

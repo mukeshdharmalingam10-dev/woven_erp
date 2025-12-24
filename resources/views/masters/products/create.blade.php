@@ -33,7 +33,6 @@
                 <input type="text" name="product_name" id="product_name" value="{{ old('product_name') }}" required
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
                     placeholder="Enter product name">
-                <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Product ID will be auto-generated (PR001, PR002, etc.)</small>
                 @error('product_name')
                     <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
                 @enderror
@@ -62,6 +61,16 @@
                         <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
                     @enderror
                 </div>
+
+            <div style="margin-bottom: 20px;">
+                <label for="description" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Description</label>
+                <textarea name="description" id="description" rows="3"
+                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; resize: vertical;"
+                    placeholder="Enter description or additional details about the product">{{ old('description') }}</textarea>
+                @error('description')
+                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
+                @enderror
+            </div>
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 30px;">

@@ -55,7 +55,7 @@
                             {{ $item->rawMaterial->raw_material_name ?? '-' }}
                         </td>
                         <td style="padding: 8px; text-align: right; color: #111827;">
-                            {{ number_format($item->quantity_received, 3) }}
+                            {{ number_format($item->quantity_received, 0) }}
                         </td>
                         <td style="padding: 8px; color: #111827;">
                             {{ $item->unit_of_measure }}

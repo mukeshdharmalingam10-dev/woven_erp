@@ -43,6 +43,21 @@
                 <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">GST Number</label>
                 <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $supplier->gst_number ?? 'N/A' }}</p>
             </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Tax Type</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">
+                    @if($supplier->tax_type)
+                        {{ $supplier->tax_type }}
+                        @if($supplier->tax_type === 'Intra-State')
+                            <span style="color: #666; font-size: 14px;">(CGST + SGST)</span>
+                        @else
+                            <span style="color: #666; font-size: 14px;">(IGST)</span>
+                        @endif
+                    @else
+                        N/A
+                    @endif
+                </p>
+            </div>
         </div>
     </div>
 
@@ -66,6 +81,28 @@
                     N/A
                 @endif
             </p>
+        </div>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+        <h3 style="color: #667eea; font-size: 18px; margin-bottom: 15px;">Bank Information</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Bank Name</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $supplier->bank_name ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">IFSC Code</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $supplier->ifsc_code ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Account Number</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $supplier->account_number ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Branch Name</label>
+                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $supplier->branch_name ?? 'N/A' }}</p>
+            </div>
         </div>
     </div>
 

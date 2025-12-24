@@ -30,8 +30,11 @@
             <a href="{{ route('sales-invoices.index') }}" style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 5px;">
                 Cancel
             </a>
-            <button type="submit" style="padding: 10px 22px; background: #667eea; color: white; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;">
+            <button type="submit" name="action" value="save" style="padding: 10px 22px; background: #667eea; color: white; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;">
                 <i class="fas fa-save"></i> Save Sales Invoice
+            </button>
+            <button type="submit" name="print" value="1" style="padding: 10px 22px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;">
+                <i class="fas fa-print"></i> Print & Save
             </button>
         </div>
     </form>

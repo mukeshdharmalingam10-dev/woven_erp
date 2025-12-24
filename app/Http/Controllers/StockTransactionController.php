@@ -223,7 +223,7 @@ class StockTransactionController extends Controller
             'transaction_type' => ['required', 'in:stock_in,stock_out'],
             'item_type' => ['required', 'in:raw_material,product'],
             'item_id' => ['required', 'integer'],
-            'quantity' => ['required', 'numeric', 'min:0.0001'],
+            'quantity' => ['required', 'integer', 'min:1'],
             'source_document_type' => ['nullable', 'in:material_inward,sales_invoice'],
             'source_document_id' => ['nullable', 'integer'],
         ];

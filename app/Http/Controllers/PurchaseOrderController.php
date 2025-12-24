@@ -89,10 +89,11 @@ class PurchaseOrderController extends Controller
             'supplier_id' => $data['supplier_id'],
             'purchase_date' => $data['purchase_date'],
             'delivery_date' => $data['delivery_date'] ?? null,
-            'gst_classification' => $this->determineGstClassification($data['supplier_id']),
+            'gst_percentage_overall' => $data['gst_percentage'] ?? 18,
+            'gst_classification' => $data['gst_classification'] ?? $this->determineGstClassification($data['supplier_id']),
         ]);
 
-        $totals = $this->calculateTotalsFromItems($data['items'] ?? []);
+        $totals = $this->calculateTotalsFromItems($data['items'] ?? [], $data['gst_percentage'] ?? null);
         $purchaseOrder->total_raw_material_amount = $totals['total_raw_material_amount'];
         $purchaseOrder->total_gst_amount = $totals['total_gst_amount'];
         $purchaseOrder->grand_total = $totals['grand_total'];
@@ -107,21 +108,17 @@ class PurchaseOrderController extends Controller
         $purchaseOrder->save();
 
         foreach ($data['items'] as $item) {
-            $itemTotals = $this->calculateItemTotals(
-                $item['quantity'],
-                $item['unit_price'],
-                $item['gst_percentage'] ?? null
-            );
+            $totalAmount = (float) $item['quantity'] * (float) $item['unit_price'];
 
             PurchaseOrderItem::create([
                 'purchase_order_id' => $purchaseOrder->id,
                 'raw_material_id' => $item['raw_material_id'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
-                'total_amount' => $itemTotals['total_amount'],
-                'gst_percentage' => $item['gst_percentage'] ?? null,
-                'gst_amount' => $itemTotals['gst_amount'],
-                'line_total' => $itemTotals['line_total'],
+                'total_amount' => $totalAmount,
+                'gst_percentage' => null,
+                'gst_amount' => 0,
+                'line_total' => $totalAmount,
             ]);
         }
 
@@ -160,9 +157,10 @@ class PurchaseOrderController extends Controller
         $purchaseOrder->supplier_id = $data['supplier_id'];
         $purchaseOrder->purchase_date = $data['purchase_date'];
         $purchaseOrder->delivery_date = $data['delivery_date'] ?? null;
-        $purchaseOrder->gst_classification = $this->determineGstClassification($data['supplier_id']);
+        $purchaseOrder->gst_percentage_overall = $data['gst_percentage'] ?? 18;
+        $purchaseOrder->gst_classification = $data['gst_classification'] ?? $this->determineGstClassification($data['supplier_id']);
 
-        $totals = $this->calculateTotalsFromItems($data['items'] ?? []);
+        $totals = $this->calculateTotalsFromItems($data['items'] ?? [], $data['gst_percentage'] ?? null);
         $purchaseOrder->total_raw_material_amount = $totals['total_raw_material_amount'];
         $purchaseOrder->total_gst_amount = $totals['total_gst_amount'];
         $purchaseOrder->grand_total = $totals['grand_total'];
@@ -172,21 +170,17 @@ class PurchaseOrderController extends Controller
         $purchaseOrder->items()->delete();
 
         foreach ($data['items'] as $item) {
-            $itemTotals = $this->calculateItemTotals(
-                $item['quantity'],
-                $item['unit_price'],
-                $item['gst_percentage'] ?? null
-            );
+            $totalAmount = (float) $item['quantity'] * (float) $item['unit_price'];
 
             PurchaseOrderItem::create([
                 'purchase_order_id' => $purchaseOrder->id,
                 'raw_material_id' => $item['raw_material_id'],
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
-                'total_amount' => $itemTotals['total_amount'],
-                'gst_percentage' => $item['gst_percentage'] ?? null,
-                'gst_amount' => $itemTotals['gst_amount'],
-                'line_total' => $itemTotals['line_total'],
+                'total_amount' => $totalAmount,
+                'gst_percentage' => null,
+                'gst_amount' => 0,
+                'line_total' => $totalAmount,
             ]);
         }
 
@@ -209,11 +203,13 @@ class PurchaseOrderController extends Controller
             'purchase_date' => ['required', 'date'],
             'delivery_date' => ['nullable', 'date'],
 
+            'gst_percentage' => ['nullable', 'numeric', 'min:0'],
+            'gst_classification' => ['nullable', 'in:CGST_SGST,IGST'],
+
             'items' => ['required', 'array', 'min:1'],
             'items.*.raw_material_id' => ['required', 'exists:raw_materials,id'],
-            'items.*.quantity' => ['required', 'numeric', 'min:0.0001'],
+            'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
-            'items.*.gst_percentage' => ['nullable', 'numeric', 'min:0'],
         ]);
     }
 
@@ -234,20 +230,15 @@ class PurchaseOrderController extends Controller
         ];
     }
 
-    protected function calculateTotalsFromItems(array $items): array
+    protected function calculateTotalsFromItems(array $items, ?float $gstPercentage = null): array
     {
         $totalRaw = 0;
-        $totalGst = 0;
 
         foreach ($items as $item) {
-            $itemTotals = $this->calculateItemTotals(
-                $item['quantity'],
-                $item['unit_price'],
-                $item['gst_percentage'] ?? null
-            );
-            $totalRaw += $itemTotals['total_amount'];
-            $totalGst += $itemTotals['gst_amount'];
+            $totalRaw += (float) $item['quantity'] * (float) $item['unit_price'];
         }
+
+        $totalGst = $gstPercentage && $gstPercentage > 0 ? ($totalRaw * $gstPercentage) / 100 : 0;
 
         return [
             'total_raw_material_amount' => $totalRaw,

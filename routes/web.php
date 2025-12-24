@@ -143,11 +143,10 @@ Route::middleware(['auth'])->group(function () {
     
     // Sales Invoices
     Route::resource('sales-invoices', App\Http\Controllers\SalesInvoiceController::class);
+    Route::get('sales-invoices/{sales_invoice}/print', [App\Http\Controllers\SalesInvoiceController::class, 'print'])->name('sales-invoices.print');
     
-    // Daily Expenses
-    Route::resource('daily-expenses', App\Http\Controllers\DailyExpenseController::class);
     
-    // Petty Cash
+    // Daily Expense
     Route::resource('petty-cash', App\Http\Controllers\PettyCashController::class);
     Route::get('petty-cash-report', [App\Http\Controllers\PettyCashController::class, 'report'])->name('petty-cash.report');
     Route::get('petty-cash-export/pdf', [App\Http\Controllers\PettyCashController::class, 'exportPdf'])->name('petty-cash.export.pdf');

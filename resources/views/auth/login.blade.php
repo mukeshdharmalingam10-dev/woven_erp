@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="auth-header">
-    <h1>Welcome Back</h1>
+    <h1>{{ $companyName ?? 'Welcome Back' }}</h1>
     <p>Sign in to your ERP account</p>
 </div>
 

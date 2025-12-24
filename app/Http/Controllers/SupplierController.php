@@ -82,7 +82,14 @@ class SupplierController extends Controller
     public function create(): View
     {
         $this->checkWritePermission('suppliers');
-        return view('masters.suppliers.create');
+        $activeBranchId = session('active_branch_id');
+        $companyInfo = null;
+        if ($activeBranchId) {
+            $companyInfo = \App\Models\CompanyInformation::where('branch_id', $activeBranchId)->first();
+        } else {
+            $companyInfo = \App\Models\CompanyInformation::first();
+        }
+        return view('masters.suppliers.create', compact('companyInfo'));
     }
 
     /**
@@ -99,10 +106,11 @@ class SupplierController extends Controller
             'address_line_1' => 'nullable|string|max:255',
             'address_line_2' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
+            'state' => 'required|string|max:100',
             'postal_code' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'gst_number' => 'nullable|string|max:50',
+            'tax_type' => 'nullable|in:Intra-State,Inter-State',
         ], [
             'supplier_name.required' => 'Supplier Name is required.',
             'supplier_name.max' => 'Supplier Name must not exceed 255 characters.',
@@ -113,6 +121,7 @@ class SupplierController extends Controller
             'address_line_1.max' => 'Address Line 1 must not exceed 255 characters.',
             'address_line_2.max' => 'Address Line 2 must not exceed 255 characters.',
             'city.max' => 'City must not exceed 100 characters.',
+            'state.required' => 'State is required.',
             'state.max' => 'State must not exceed 100 characters.',
             'postal_code.max' => 'Postal Code must not exceed 20 characters.',
             'country.max' => 'Country must not exceed 100 characters.',
@@ -166,6 +175,11 @@ class SupplierController extends Controller
             'postal_code' => $request->postal_code,
             'country' => $request->country,
             'gst_number' => $request->gst_number,
+            'tax_type' => $request->tax_type,
+            'bank_name' => $request->bank_name,
+            'ifsc_code' => $request->ifsc_code,
+            'account_number' => $request->account_number,
+            'branch_name' => $request->branch_name,
             'organization_id' => $user->organization_id,
             'branch_id' => $user->branch_id,
             'created_by' => $user->id,
@@ -191,7 +205,14 @@ class SupplierController extends Controller
     public function edit(Supplier $supplier): View
     {
         $this->checkWritePermission('suppliers');
-        return view('masters.suppliers.edit', compact('supplier'));
+        $activeBranchId = session('active_branch_id');
+        $companyInfo = null;
+        if ($activeBranchId) {
+            $companyInfo = \App\Models\CompanyInformation::where('branch_id', $activeBranchId)->first();
+        } else {
+            $companyInfo = \App\Models\CompanyInformation::first();
+        }
+        return view('masters.suppliers.edit', compact('supplier', 'companyInfo'));
     }
 
     /**
@@ -208,10 +229,15 @@ class SupplierController extends Controller
             'address_line_1' => 'nullable|string|max:255',
             'address_line_2' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
-            'state' => 'nullable|string|max:100',
+            'state' => 'required|string|max:100',
             'postal_code' => 'nullable|string|max:20',
             'country' => 'nullable|string|max:100',
             'gst_number' => 'nullable|string|max:50',
+            'tax_type' => 'nullable|in:Intra-State,Inter-State',
+            'bank_name' => 'nullable|string|max:255',
+            'ifsc_code' => 'nullable|string|max:11',
+            'account_number' => 'nullable|string|max:50',
+            'branch_name' => 'nullable|string|max:255',
         ], [
             'supplier_name.required' => 'Supplier Name is required.',
             'supplier_name.max' => 'Supplier Name must not exceed 255 characters.',
@@ -222,10 +248,15 @@ class SupplierController extends Controller
             'address_line_1.max' => 'Address Line 1 must not exceed 255 characters.',
             'address_line_2.max' => 'Address Line 2 must not exceed 255 characters.',
             'city.max' => 'City must not exceed 100 characters.',
+            'state.required' => 'State is required.',
             'state.max' => 'State must not exceed 100 characters.',
             'postal_code.max' => 'Postal Code must not exceed 20 characters.',
             'country.max' => 'Country must not exceed 100 characters.',
             'gst_number.max' => 'GST Number must not exceed 50 characters.',
+            'bank_name.max' => 'Bank Name must not exceed 255 characters.',
+            'ifsc_code.max' => 'IFSC Code must not exceed 11 characters.',
+            'account_number.max' => 'Account Number must not exceed 50 characters.',
+            'branch_name.max' => 'Branch Name must not exceed 255 characters.',
         ]);
 
         // Supplier ID (code) is not editable - it remains the same
@@ -241,6 +272,11 @@ class SupplierController extends Controller
             'postal_code' => $request->postal_code,
             'country' => $request->country,
             'gst_number' => $request->gst_number,
+            'tax_type' => $request->tax_type,
+            'bank_name' => $request->bank_name,
+            'ifsc_code' => $request->ifsc_code,
+            'account_number' => $request->account_number,
+            'branch_name' => $request->branch_name,
         ]);
 
         return redirect()->route('suppliers.index')

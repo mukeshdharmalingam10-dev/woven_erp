@@ -14,6 +14,7 @@ class RawMaterial extends Model
         'raw_material_name',
         'code',
         'unit_of_measure',
+        'description',
         'reorder_level',
         'organization_id',
         'branch_id',

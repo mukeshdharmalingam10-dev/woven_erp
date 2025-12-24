@@ -31,7 +31,9 @@
         </div>
         <div>
             <div style="font-size: 13px; color: #6b7280;">GST Percentage (Overall)</div>
-            <div style="font-weight: 600; color: #111827;">{{ $salesInvoice->gst_percentage_overall !== null ? $salesInvoice->gst_percentage_overall . '%' : '-' }}</div>
+            <div style="font-weight: 600; color: #111827;">
+                {{ $salesInvoice->gst_percentage_overall !== null ? $salesInvoice->gst_percentage_overall . '%' : '-' }}
+            </div>
         </div>
         <div>
             <div style="font-size: 13px; color: #6b7280;">GST Classification</div>
@@ -68,9 +70,6 @@
                     <th style="padding: 10px; text-align: right;">Quantity Sold</th>
                     <th style="padding: 10px; text-align: right;">Unit Price</th>
                     <th style="padding: 10px; text-align: right;">Total Amount</th>
-                    <th style="padding: 10px; text-align: right;">GST %</th>
-                    <th style="padding: 10px; text-align: right;">GST Amount</th>
-                    <th style="padding: 10px; text-align: right;">Line Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -80,22 +79,13 @@
                             {{ $item->product->product_name ?? '-' }}
                         </td>
                         <td style="padding: 8px; text-align: right; color: #111827;">
-                            {{ number_format($item->quantity_sold, 3) }}
+                            {{ number_format($item->quantity_sold, 0) }}
                         </td>
                         <td style="padding: 8px; text-align: right; color: #111827;">
                             {{ number_format($item->unit_price, 2) }}
                         </td>
                         <td style="padding: 8px; text-align: right; color: #111827;">
                             {{ number_format($item->total_amount, 2) }}
-                        </td>
-                        <td style="padding: 8px; text-align: right; color: #111827;">
-                            {{ $item->gst_percentage !== null ? number_format($item->gst_percentage, 2) . '%' : '-' }}
-                        </td>
-                        <td style="padding: 8px; text-align: right; color: #111827;">
-                            {{ number_format($item->gst_amount, 2) }}
-                        </td>
-                        <td style="padding: 8px; text-align: right; color: #111827;">
-                            {{ number_format($item->line_total, 2) }}
                         </td>
                     </tr>
                 @endforeach
@@ -108,6 +98,21 @@
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span style="font-weight: 500; color: #374151;">Total Sales Amount:</span>
                 <span style="font-weight: 600; color: #111827;">{{ number_format($salesInvoice->total_sales_amount, 2) }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-weight: 500; color: #374151;">GST (Overall):</span>
+                <span style="font-weight: 600; color: #111827;">
+                    @if($salesInvoice->gst_percentage_overall !== null)
+                        {{ number_format($salesInvoice->gst_percentage_overall, 2) }}%
+                        @if($salesInvoice->gst_classification === 'CGST_SGST')
+                            (CGST + SGST)
+                        @elseif($salesInvoice->gst_classification === 'IGST')
+                            (IGST)
+                        @endif
+                    @else
+                        -
+                    @endif
+                </span>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span style="font-weight: 500; color: #374151;">Total GST Amount:</span>

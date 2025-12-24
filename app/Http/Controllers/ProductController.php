@@ -82,6 +82,7 @@ class ProductController extends Controller
         $request->validate([
             'product_name' => 'required|string|max:255',
             'unit_of_measure' => 'required|string|max:50',
+            'description' => 'nullable|string',
         ], [
             'product_name.required' => 'Product Name is required.',
             'product_name.max' => 'Product Name must not exceed 255 characters.',
@@ -126,6 +127,7 @@ class ProductController extends Controller
             'product_name' => $request->product_name,
             'code' => $code,
             'unit_of_measure' => $request->unit_of_measure,
+            'description' => $request->description,
             'organization_id' => $user->organization_id,
             'branch_id' => $user->branch_id,
             'created_by' => $user->id,
@@ -159,6 +161,7 @@ class ProductController extends Controller
         $request->validate([
             'product_name' => 'required|string|max:255',
             'unit_of_measure' => 'required|string|max:50',
+            'description' => 'nullable|string',
         ], [
             'product_name.required' => 'Product Name is required.',
             'product_name.max' => 'Product Name must not exceed 255 characters.',
@@ -170,6 +173,7 @@ class ProductController extends Controller
         $product->update([
             'product_name' => $request->product_name,
             'unit_of_measure' => $request->unit_of_measure,
+            'description' => $request->description,
         ]);
 
         return redirect()->route('products.index')

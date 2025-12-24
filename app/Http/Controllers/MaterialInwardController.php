@@ -150,7 +150,7 @@ class MaterialInwardController extends Controller
 
             'items' => ['required', 'array', 'min:1'],
             'items.*.raw_material_id' => ['required', 'exists:raw_materials,id'],
-            'items.*.quantity_received' => ['required', 'numeric', 'min:0.0001'],
+            'items.*.quantity_received' => ['required', 'integer', 'min:1'],
             'items.*.unit_of_measure' => ['required', 'string', 'max:191'],
             'items.*.unit_price' => ['required', 'numeric', 'min:0'],
         ]);
