@@ -111,6 +111,7 @@
             <option value="Sales Return" {{ $creditNoteReason == 'Sales Return' ? 'selected' : '' }}>Sales Return</option>
             <option value="Rate Difference" {{ $creditNoteReason == 'Rate Difference' ? 'selected' : '' }}>Rate Difference</option>
             <option value="Excess Billing" {{ $creditNoteReason == 'Excess Billing' ? 'selected' : '' }}>Excess Billing</option>
+            <option value="Service Cancellation" {{ $creditNoteReason == 'Service Cancellation' ? 'selected' : '' }}>Service Cancellation</option>
             <option value="Damage Compensation" {{ $creditNoteReason == 'Damage Compensation' ? 'selected' : '' }}>Damage Compensation</option>
             <option value="Others" {{ $creditNoteReason == 'Others' ? 'selected' : '' }}>Others</option>
         </select>
@@ -766,7 +767,7 @@
          }
          
          const adjustments = parseFloat(document.getElementById('adjustments').value) || 0;
-         const totalDebitAmount = subtotal + gstAmount - adjustments;
+         const totalCreditAmount = subtotal + gstAmount - adjustments;
          
          // Update display
          document.getElementById('subtotal').value = subtotal.toFixed(2);
@@ -777,14 +778,14 @@
          document.getElementById('sgst_amount').value = sgstAmount.toFixed(2);
          document.getElementById('igst_percentage').value = igstRate.toFixed(2);
          document.getElementById('igst_amount').value = igstAmount.toFixed(2);
-         document.getElementById('total_credit_amount').value = totalDebitAmount.toFixed(2);
+         document.getElementById('total_credit_amount').value = totalCreditAmount.toFixed(2);
          
          // Update hidden fields
          document.getElementById('subtotal_hidden').value = subtotal.toFixed(2);
          document.getElementById('cgst_amount_hidden').value = cgstAmount.toFixed(2);
          document.getElementById('sgst_amount_hidden').value = sgstAmount.toFixed(2);
          document.getElementById('igst_amount_hidden').value = igstAmount.toFixed(2);
-         document.getElementById('total_credit_amount_hidden').value = totalDebitAmount.toFixed(2);
+         document.getElementById('total_credit_amount_hidden').value = totalCreditAmount.toFixed(2);
      }
     
     // Attach events to existing rows
