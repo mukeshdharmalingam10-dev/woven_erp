@@ -210,17 +210,17 @@
     </div>
 
     <div class="section">
-        <div class="section-title">Supplier Information</div>
+        <div class="section-title">Customer Information</div>
         <div class="two-columns">
             <div>
                 <div class="info-row">
-                    <span class="info-label">Supplier Name:</span>
-                    <span class="info-value">{{ $quotation->supplier->supplier_name ?? '-' }}</span>
+                    <span class="info-label">Customer Name:</span>
+                    <span class="info-value">{{ $quotation->customer->customer_name ?? '-' }}</span>
                 </div>
-                @if($quotation->supplier && $quotation->supplier->code)
+                @if($quotation->customer && $quotation->customer->code)
                     <div class="info-row">
-                        <span class="info-label">Supplier Code:</span>
-                        <span class="info-value">{{ $quotation->supplier->code }}</span>
+                        <span class="info-label">Customer Code:</span>
+                        <span class="info-value">{{ $quotation->customer->code }}</span>
                     </div>
                 @endif
                 @if($quotation->contact_person_name)

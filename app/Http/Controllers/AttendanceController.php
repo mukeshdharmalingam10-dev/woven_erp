@@ -74,9 +74,11 @@ class AttendanceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date', 'before_or_equal:today'],
             'absentees' => ['nullable', 'array'],
             'absentees.*' => ['exists:employees,id'],
+        ], [
+            'date.before_or_equal' => 'You cannot mark attendance for future dates.',
         ]);
 
         $date = $request->date;
@@ -156,9 +158,11 @@ class AttendanceController extends Controller
     public function update(Request $request, $date)
     {
         $request->validate([
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date', 'before_or_equal:today'],
             'absentees' => ['nullable', 'array'],
             'absentees.*' => ['exists:employees,id'],
+        ], [
+            'date.before_or_equal' => 'You cannot mark attendance for future dates.',
         ]);
 
         $absenteeIds = $request->absentees ?? [];

@@ -62,7 +62,7 @@
                 </tbody>
             </table>
         </div>
-        <div style="margin-top: 20px;">{{ $branches->links() }}</div>
+        @include('partials.pagination', ['paginator' => $branches, 'routeUrl' => route('branches.index')])
     @else
         <div style="text-align: center; padding: 40px;">
             <p>No branches found.</p>

@@ -29,6 +29,7 @@
         <div style="margin-bottom: 25px;">
             <label for="date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Date <span style="color:red">*</span></label>
             <input type="date" name="date" id="date" required value="{{ old('date', $selectedDate) }}"
+                   max="{{ date('Y-m-d') }}"
                    style="width: 100%; max-width: 300px; padding: 10px; border-radius: 5px; border: 1px solid #ddd;"
                    onchange="updateStatistics()">
             @error('date')

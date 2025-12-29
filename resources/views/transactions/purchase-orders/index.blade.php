@@ -88,9 +88,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $purchaseOrders->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $purchaseOrders, 'routeUrl' => route('purchase-orders.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No purchase orders found.</p>

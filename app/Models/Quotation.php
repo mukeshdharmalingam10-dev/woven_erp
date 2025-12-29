@@ -13,7 +13,7 @@ class Quotation extends Model
     protected $fillable = [
         'quotation_id',
         'quotation_date',
-        'supplier_id',
+        'customer_id',
         'contact_person_name',
         'contact_number',
         'postal_code',
@@ -41,11 +41,11 @@ class Quotation extends Model
     ];
 
     /**
-     * Get the supplier that owns the quotation.
+     * Get the customer that owns the quotation.
      */
-    public function supplier()
+    public function customer()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Customer::class);
     }
 
     /**

@@ -91,16 +91,47 @@
     <div>
         <label for="receipt" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Receipt</label>
         <input type="file" name="receipt" id="receipt" accept=".pdf,.jpg,.jpeg,.png"
-               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;"
+               onchange="previewNewReceipt(this)">
         @error('receipt')
             <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
         @enderror
         @if($editing && $pettyCash->receipt_path)
-            <div style="margin-top: 8px;">
-                <a href="{{ asset('storage/' . $pettyCash->receipt_path) }}" target="_blank" style="color: #667eea; text-decoration: none;">
-                    <i class="fas fa-file"></i> View Current Receipt
-                </a>
-            </div>
+            @php
+                $receiptExists = \Illuminate\Support\Facades\Storage::disk('public')->exists($pettyCash->receipt_path);
+                // Use route to serve receipt file directly (more reliable than symlink)
+                // Add cache-busting parameter using file modification time to force refresh
+                $cacheBuster = $receiptExists ? '?v=' . \Illuminate\Support\Facades\Storage::disk('public')->lastModified($pettyCash->receipt_path) : '';
+                $receiptUrl = $receiptExists ? route('petty-cash.receipt', $pettyCash->id) . $cacheBuster : null;
+                $isImage = $receiptExists && in_array(strtolower(pathinfo($pettyCash->receipt_path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']);
+            @endphp
+            @if($receiptExists && $receiptUrl)
+                <div id="receipt-preview-container" style="margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 5px; border: 1px solid #dee2e6;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <a href="{{ $receiptUrl }}" target="_blank" style="color: #667eea; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-file"></i> View Current Receipt
+                        </a>
+                        <button type="button" onclick="deleteReceipt({{ $pettyCash->id }})" 
+                                style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                            <i class="fas fa-trash"></i> Delete Receipt
+                        </button>
+                    </div>
+                    @if($isImage)
+                        <div style="margin-top: 10px;">
+                            <img id="receipt-image-preview" src="{{ $receiptUrl }}" alt="Receipt" 
+                                 style="max-width: 300px; max-height: 300px; border: 1px solid #ddd; border-radius: 5px; padding: 5px; cursor: pointer;"
+                                 onclick="window.open('{{ $receiptUrl }}', '_blank')"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <div style="display: none; color: #dc3545; font-size: 12px; margin-top: 5px;">Image not found. Please check the file path.</div>
+                        </div>
+                    @endif
+                    <input type="hidden" name="delete_receipt" id="delete_receipt" value="0">
+                </div>
+            @else
+                <div style="margin-top: 8px; padding: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; color: #856404; font-size: 12px;">
+                    <i class="fas fa-exclamation-triangle"></i> Receipt file not found in storage. The file may have been deleted.
+                </div>
+            @endif
         @endif
         <small style="color: #666; font-size: 12px; display: block; margin-top: 4px;">Accepted formats: PDF, JPG, PNG (Max 5MB)</small>
     </div>
@@ -115,4 +146,113 @@
         <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
     @enderror
 </div>
+
+@if($editing && $pettyCash->receipt_path)
+@push('scripts')
+<script>
+    function deleteReceipt(pettyCashId) {
+        if (!confirm('Are you sure you want to delete this receipt? This action cannot be undone.')) {
+            return;
+        }
+        
+        fetch('{{ route("petty-cash.delete-receipt", $pettyCash->id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Receipt deleted successfully.');
+                location.reload();
+            } else {
+                alert('Error: ' + (data.message || 'Failed to delete receipt'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while deleting the receipt.');
+        });
+    }
+
+</script>
+@endpush
+@endif
+
+@push('scripts')
+<script>
+    // Preview new receipt when file is selected (for both create and edit)
+    function previewNewReceipt(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const isImage = ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension);
+            
+            if (isImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let receiptPreviewContainer = document.getElementById('receipt-preview-container');
+                    let receiptImagePreview = document.getElementById('receipt-image-preview');
+                    
+                    if (!receiptPreviewContainer) {
+                        // Create preview container if it doesn't exist
+                        const receiptInput = document.getElementById('receipt');
+                        const parentDiv = receiptInput.closest('div');
+                        
+                        receiptPreviewContainer = document.createElement('div');
+                        receiptPreviewContainer.id = 'receipt-preview-container';
+                        receiptPreviewContainer.style.cssText = 'margin-top: 12px; padding: 12px; background: #f8f9fa; border-radius: 5px; border: 1px solid #dee2e6;';
+                        
+                        const imageDiv = document.createElement('div');
+                        imageDiv.style.cssText = 'margin-top: 10px;';
+                        
+                        receiptImagePreview = document.createElement('img');
+                        receiptImagePreview.id = 'receipt-image-preview';
+                        receiptImagePreview.style.cssText = 'max-width: 300px; max-height: 300px; border: 1px solid #ddd; border-radius: 5px; padding: 5px; cursor: pointer;';
+                        receiptImagePreview.onclick = function() {
+                            window.open(e.target.result, '_blank');
+                        };
+                        
+                        imageDiv.appendChild(receiptImagePreview);
+                        receiptPreviewContainer.appendChild(imageDiv);
+                        parentDiv.appendChild(receiptPreviewContainer);
+                    }
+                    
+                    if (receiptImagePreview) {
+                        receiptImagePreview.src = e.target.result;
+                        receiptImagePreview.style.display = 'block';
+                        receiptImagePreview.onclick = function() {
+                            window.open(e.target.result, '_blank');
+                        };
+                    } else {
+                        const imageDiv = receiptPreviewContainer.querySelector('div[style*="margin-top: 10px"]');
+                        if (imageDiv) {
+                            const img = imageDiv.querySelector('img');
+                            if (img) {
+                                img.src = e.target.result;
+                                img.style.display = 'block';
+                            } else {
+                                receiptImagePreview = document.createElement('img');
+                                receiptImagePreview.id = 'receipt-image-preview';
+                                receiptImagePreview.style.cssText = 'max-width: 300px; max-height: 300px; border: 1px solid #ddd; border-radius: 5px; padding: 5px; cursor: pointer;';
+                                receiptImagePreview.src = e.target.result;
+                                receiptImagePreview.onclick = function() {
+                                    window.open(e.target.result, '_blank');
+                                };
+                                imageDiv.appendChild(receiptImagePreview);
+                            }
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+    
+    // Make function available globally
+    window.previewNewReceipt = previewNewReceipt;
+</script>
+@endpush
 

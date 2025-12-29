@@ -90,15 +90,8 @@
         @enderror
     </div>
 
-    <div>
-        <label for="currency" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Currency</label>
-        <input type="text" name="currency" id="currency" readonly
-               value="{{ old('currency', $editing ? $debitNote->currency : ($companyInfo->currency ?? 'INR')) }}"
-               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
-        @error('currency')
-            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
-        @enderror
-    </div>
+    {{-- Currency field hidden - default to INR --}}
+    <input type="hidden" name="currency" id="currency" value="{{ old('currency', $editing ? $debitNote->currency : ($companyInfo->currency ?? 'INR')) }}">
 </div>
 
 {{-- Debit Note Reason and Remarks --}}

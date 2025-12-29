@@ -71,6 +71,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Date Format
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the default date format used throughout the
+    | application. This format will be used consistently across all views
+    | and date displays, regardless of system locale settings.
+    |
+    */
+
+    'date_format' => 'd-m-Y',
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

@@ -58,7 +58,6 @@
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Raw Material Name</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Description</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Unit of Measure</th>
-                        <th style="padding: 12px; text-align: right; color: #333; font-weight: 600;">Reorder Level</th>
                         <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">Actions</th>
                     </tr>
                 </thead>
@@ -71,7 +70,6 @@
                                 {{ $rawMaterial->description }}
                             </td>
                             <td style="padding: 12px; color: #666;">{{ $rawMaterial->unit_of_measure }}</td>
-                            <td style="padding: 12px; text-align: right; color: #666;">{{ number_format($rawMaterial->reorder_level, 2) }}</td>
                             <td style="padding: 12px; text-align: center;">
                                 <div style="display: flex; gap: 8px; justify-content: center;">
                                     @if($canRead)
@@ -101,9 +99,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $rawMaterials->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $rawMaterials, 'routeUrl' => route('raw-materials.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No raw materials found.</p>

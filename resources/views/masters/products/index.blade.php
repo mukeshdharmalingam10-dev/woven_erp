@@ -99,9 +99,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $products->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $products, 'routeUrl' => route('products.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No products found.</p>

@@ -23,7 +23,7 @@
 
     <form method="GET" action="{{ route('quotations.index') }}" style="margin-bottom: 20px;">
         <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by quotation ID or supplier..."
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by quotation ID or customer..."
                 style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
             <button type="submit" style="padding: 10px 20px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer;">
                 <i class="fas fa-search"></i> Search
@@ -43,7 +43,7 @@
                     <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">S.No</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Quotation ID</th>
-                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Supplier</th>
+                        <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Customer</th>
                         <th style="padding: 12px; text-align: left; color: #333; font-weight: 600;">Company Name</th>
                         <th style="padding: 12px; text-align: right; color: #333; font-weight: 600;">Total Amount</th>
                         <th style="padding: 12px; text-align: center; color: #333; font-weight: 600;">Actions</th>
@@ -54,7 +54,7 @@
                         <tr style="border-bottom: 1px solid #dee2e6;">
                             <td style="padding: 12px; color: #666;">{{ ($quotations->currentPage() - 1) * $quotations->perPage() + $loop->iteration }}</td>
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $quotation->quotation_id }}</td>
-                            <td style="padding: 12px; color: #333;">{{ $quotation->supplier->supplier_name ?? '-' }}</td>
+                            <td style="padding: 12px; color: #333;">{{ $quotation->customer->customer_name ?? '-' }}</td>
                             <td style="padding: 12px; color: #333;">{{ $quotation->company_name ?? '-' }}</td>
                             <td style="padding: 12px; color: #333; text-align: right;">{{ number_format($quotation->total_amount, 2) }}</td>
                             <td style="padding: 12px; text-align: center;">
@@ -86,9 +86,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $quotations->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $quotations, 'routeUrl' => route('quotations.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No quotations found.</p>

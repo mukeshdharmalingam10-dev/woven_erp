@@ -94,9 +94,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $paymentTrackings->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $paymentTrackings, 'routeUrl' => route('payment-trackings.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <i class="fas fa-receipt" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>

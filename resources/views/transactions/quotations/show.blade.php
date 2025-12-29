@@ -32,8 +32,8 @@
                 <p style="color: #333; font-size: 16px; font-weight: 500;">{{ $quotation->quotation_id }}</p>
             </div>
             <div>
-                <label style="display: block; margin-bottom: 5px; color: #666; font-size: 12px; font-weight: 600;">Supplier</label>
-                <p style="color: #333; font-size: 16px;">{{ $quotation->supplier->supplier_name ?? '-' }}</p>
+                <label style="display: block; margin-bottom: 5px; color: #666; font-size: 12px; font-weight: 600;">Customer</label>
+                <p style="color: #333; font-size: 16px;">{{ $quotation->customer->customer_name ?? '-' }}</p>
             </div>
             <div>
                 <label style="display: block; margin-bottom: 5px; color: #666; font-size: 12px; font-weight: 600;">Contact Person Name</label>

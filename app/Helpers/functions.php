@@ -73,3 +73,71 @@ if (!function_exists('debug_permissions')) {
     }
 }
 
+if (!function_exists('formatDate')) {
+    /**
+     * Format a date using the application's default date format (dd-mm-yyyy)
+     *
+     * @param mixed $date
+     * @param string|null $format
+     * @return string
+     */
+    function formatDate($date, $format = null)
+    {
+        if (empty($date)) {
+            return '';
+        }
+        
+        $defaultFormat = config('app.date_format', 'd-m-Y');
+        $format = $format ?? $defaultFormat;
+        
+        if ($date instanceof \Carbon\Carbon || $date instanceof \DateTime) {
+            return $date->format($format);
+        }
+        
+        if (is_string($date)) {
+            try {
+                $carbon = \Carbon\Carbon::parse($date);
+                return $carbon->format($format);
+            } catch (\Exception $e) {
+                return $date;
+            }
+        }
+        
+        return '';
+    }
+}
+
+if (!function_exists('formatDateTime')) {
+    /**
+     * Format a date with time using the application's default format
+     *
+     * @param mixed $date
+     * @param string|null $format
+     * @return string
+     */
+    function formatDateTime($date, $format = null)
+    {
+        if (empty($date)) {
+            return '';
+        }
+        
+        $defaultFormat = config('app.date_format', 'd-m-Y') . ' H:i:s';
+        $format = $format ?? $defaultFormat;
+        
+        if ($date instanceof \Carbon\Carbon || $date instanceof \DateTime) {
+            return $date->format($format);
+        }
+        
+        if (is_string($date)) {
+            try {
+                $carbon = \Carbon\Carbon::parse($date);
+                return $carbon->format($format);
+            } catch (\Exception $e) {
+                return $date;
+            }
+        }
+        
+        return '';
+    }
+}
+

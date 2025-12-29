@@ -28,8 +28,6 @@
                 <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ $rawMaterial->unit_of_measure }}</p>
             </div>
             <div>
-                <label style="display: block; color: #666; font-weight: 500; margin-bottom: 5px;">Reorder Level</label>
-                <p style="color: #333; font-size: 16px; margin: 0 0 20px 0;">{{ number_format($rawMaterial->reorder_level, 2) }} {{ $rawMaterial->unit_of_measure }}</p>
             </div>
         </div>
     </div>

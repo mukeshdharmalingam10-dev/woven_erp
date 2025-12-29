@@ -19,32 +19,31 @@
         </div>
 
         <div>
-            <label for="supplier_id" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Supplier Name <span style="color: red;">*</span></label>
-            <select name="supplier_id" id="supplier_id" required
+            <label for="customer_id" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Customer Name <span style="color: red;">*</span></label>
+            <select name="customer_id" id="customer_id" required
                     style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #fff;">
-                <option value="">-- Select Supplier --</option>
-                @foreach($suppliers as $supplier)
-                    <option value="{{ $supplier->id }}"
-                        data-contact-name="{{ $supplier->contact_name ?? '' }}"
-                        data-contact-number="{{ $supplier->phone_number ?? '' }}"
-                        data-postal-code="{{ $supplier->postal_code ?? '' }}"
-                        data-company-name="{{ $supplier->supplier_name ?? '' }}"
-                        data-address-line-1="{{ $supplier->address_line_1 ?? '' }}"
-                        data-address-line-2="{{ $supplier->address_line_2 ?? '' }}"
-                        data-city="{{ $supplier->city ?? '' }}"
-                        data-state="{{ $supplier->state ?? '' }}"
-                        {{ old('supplier_id', $editing ? $quotation->supplier_id : '') == $supplier->id ? 'selected' : '' }}>
-                        {{ $supplier->supplier_name }} ({{ $supplier->code }})
+                <option value="">-- Select Customer --</option>
+                @foreach($customers as $customer)
+                    <option value="{{ $customer->id }}"
+                        data-contact-name="{{ $customer->contact_name_1 ?? '' }}"
+                        data-contact-number="{{ $customer->phone_number ?? '' }}"
+                        data-postal-code="{{ $customer->billing_postal_code ?? '' }}"
+                        data-address-line-1="{{ $customer->billing_address_line_1 ?? '' }}"
+                        data-address-line-2="{{ $customer->billing_address_line_2 ?? '' }}"
+                        data-city="{{ $customer->billing_city ?? '' }}"
+                        data-state="{{ $customer->billing_state ?? '' }}"
+                        {{ old('customer_id', $editing ? $quotation->customer_id : '') == $customer->id ? 'selected' : '' }}>
+                        {{ $customer->customer_name }}
                     </option>
                 @endforeach
             </select>
-            @error('supplier_id')
+            @error('customer_id')
                 <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
             @enderror
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
         <div>
             <label for="contact_person_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Contact Person Name</label>
             <input type="text" name="contact_person_name" id="contact_person_name"
@@ -65,15 +64,6 @@
             @enderror
         </div>
 
-        <div>
-            <label for="company_name" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Company Name</label>
-            <input type="text" name="company_name" id="company_name" readonly
-                   value="{{ old('company_name', $editing ? $quotation->company_name : '') }}"
-                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; background: #e9ecef;">
-            @error('company_name')
-                <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-            @enderror
-        </div>
     </div>
 
     <div style="background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
@@ -274,8 +264,8 @@
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
         <div>
-            <label for="validity" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Validity <span style="color: red;">*</span></label>
-            <input type="text" name="validity" id="validity" required
+            <label for="validity" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Validity</label>
+            <input type="text" name="validity" id="validity"
                    value="{{ old('validity', $editing ? $quotation->validity : '') }}"
                    placeholder="e.g., 30 Days from quotation date"
                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
@@ -296,10 +286,10 @@
         </div>
 
         <div>
-            <label for="inspection" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Inspection <span style="color: red;">*</span></label>
-            <input type="text" name="inspection" id="inspection" required
+            <label for="inspection" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Inspection</label>
+            <input type="text" name="inspection" id="inspection"
                    value="{{ old('inspection', $editing ? $quotation->inspection : '') }}"
-                   placeholder="e.g., At supplier premises"
+                   placeholder="e.g., At customer premises"
                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
             @error('inspection')
                 <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
@@ -318,8 +308,8 @@
         </div>
 
         <div>
-            <label for="freight" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Freight <span style="color: red;">*</span></label>
-            <input type="text" name="freight" id="freight" required
+            <label for="freight" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Freight</label>
+            <input type="text" name="freight" id="freight"
                    value="{{ old('freight', $editing ? $quotation->freight : '') }}"
                    placeholder="e.g., Extra / Included"
                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
@@ -329,8 +319,8 @@
         </div>
 
         <div>
-            <label for="special_condition" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Special Condition <span style="color: red;">*</span></label>
-            <input type="text" name="special_condition" id="special_condition" required
+            <label for="special_condition" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Special Condition</label>
+            <input type="text" name="special_condition" id="special_condition"
                    value="{{ old('special_condition', $editing ? $quotation->special_condition : '') }}"
                    placeholder="Enter special condition"
                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
@@ -463,14 +453,13 @@
         recalcTotals();
     }
 
-    // Supplier selection change
-    document.getElementById('supplier_id').addEventListener('change', function() {
+    // Customer selection change
+    document.getElementById('customer_id').addEventListener('change', function() {
         var option = this.options[this.selectedIndex];
         if (option && option.value) {
             document.getElementById('contact_person_name').value = option.getAttribute('data-contact-name') || '';
             document.getElementById('contact_number').value = option.getAttribute('data-contact-number') || '';
             document.getElementById('postal_code').value = option.getAttribute('data-postal-code') || '';
-            document.getElementById('company_name').value = option.getAttribute('data-company-name') || '';
             document.getElementById('address_line_1').value = option.getAttribute('data-address-line-1') || '';
             document.getElementById('address_line_2').value = option.getAttribute('data-address-line-2') || '';
             document.getElementById('city').value = option.getAttribute('data-city') || '';
@@ -479,7 +468,6 @@
             document.getElementById('contact_person_name').value = '';
             document.getElementById('contact_number').value = '';
             document.getElementById('postal_code').value = '';
-            document.getElementById('company_name').value = '';
             document.getElementById('address_line_1').value = '';
             document.getElementById('address_line_2').value = '';
             document.getElementById('city').value = '';
@@ -497,6 +485,12 @@
         
         // Initialize totals
         recalcTotals();
+        
+        // Auto-populate fields if customer is already selected (when editing)
+        var customerSelect = document.getElementById('customer_id');
+        if (customerSelect && customerSelect.value) {
+            customerSelect.dispatchEvent(new Event('change'));
+        }
     });
 </script>
 @endpush

@@ -59,9 +59,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $companyInfos->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $companyInfos, 'routeUrl' => route('company-information.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No company information found.</p>

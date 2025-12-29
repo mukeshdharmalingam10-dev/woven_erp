@@ -73,16 +73,8 @@
                 @enderror
             </div>
 
-            <div style="margin-bottom: 20px;">
-                <label for="reorder_level" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Reorder Level <span style="color: red;">*</span></label>
-                <input type="number" name="reorder_level" id="reorder_level" value="{{ old('reorder_level') !== null ? (int)old('reorder_level') : (int)$rawMaterial->reorder_level }}" step="1" min="0" required
-                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                    placeholder="Enter reorder level (stock threshold for reorder)">
-                <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">Stock threshold for reorder</small>
-                @error('reorder_level')
-                    <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-                @enderror
-            </div>
+            {{-- Reorder Level field hidden - preserve existing value --}}
+            <input type="hidden" name="reorder_level" id="reorder_level" value="{{ old('reorder_level', $rawMaterial->reorder_level ?? 0) }}">
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 30px;">

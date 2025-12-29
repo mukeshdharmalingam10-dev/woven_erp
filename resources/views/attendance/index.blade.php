@@ -27,6 +27,7 @@
             <div style="flex: 1; max-width: 250px;">
                 <label for="date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Select Date</label>
                 <input type="date" name="date" id="date" value="{{ $selectedDate }}"
+                       max="{{ date('Y-m-d') }}"
                        style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;"
                        onchange="this.form.submit()">
             </div>

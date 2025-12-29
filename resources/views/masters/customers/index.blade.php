@@ -105,9 +105,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $customers->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $customers, 'routeUrl' => route('customers.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No customers found.</p>
@@ -119,5 +117,6 @@
         </div>
     @endif
 </div>
+
 @endsection
 

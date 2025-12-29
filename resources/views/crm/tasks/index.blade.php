@@ -126,9 +126,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $tasks->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $tasks, 'routeUrl' => route('tasks.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No tasks found.</p>

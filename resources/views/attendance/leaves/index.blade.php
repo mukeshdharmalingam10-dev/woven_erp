@@ -98,9 +98,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $leaves->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $leaves, 'routeUrl' => route('leaves.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No leave requests found.</p>

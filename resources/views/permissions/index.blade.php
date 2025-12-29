@@ -52,7 +52,7 @@
                 </tbody>
             </table>
         </div>
-        <div style="margin-top: 20px;">{{ $permissions->links() }}</div>
+        @include('partials.pagination', ['paginator' => $permissions, 'routeUrl' => route('permissions.index')])
     @else
         <div style="text-align: center; padding: 40px;">
             <p>No permissions found.</p>

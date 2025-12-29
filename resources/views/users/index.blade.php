@@ -199,7 +199,7 @@
         </div>
 
         <div style="margin-top: 20px;" id="pagination-container">
-            {{ $users->links() }}
+            @include('partials.pagination', ['paginator' => $users, 'routeUrl' => route('users.index')])
         </div>
     @else
         <div style="text-align: center; padding: 40px; color: #666;">

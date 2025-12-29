@@ -169,7 +169,9 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('payment-trackings', App\Http\Controllers\PaymentTrackingController::class);
     
     
-    // Daily Expense
+    // Daily Expense - Specific routes must come BEFORE resource route
+    Route::get('petty-cash/{petty_cash}/receipt', [App\Http\Controllers\PettyCashController::class, 'showReceipt'])->name('petty-cash.receipt');
+    Route::post('petty-cash/{petty_cash}/delete-receipt', [App\Http\Controllers\PettyCashController::class, 'deleteReceipt'])->name('petty-cash.delete-receipt');
     Route::resource('petty-cash', App\Http\Controllers\PettyCashController::class);
     Route::get('petty-cash-report', [App\Http\Controllers\PettyCashController::class, 'report'])->name('petty-cash.report');
     Route::get('petty-cash-export/pdf', [App\Http\Controllers\PettyCashController::class, 'exportPdf'])->name('petty-cash.export.pdf');

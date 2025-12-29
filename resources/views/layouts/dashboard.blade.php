@@ -486,6 +486,21 @@
         }
     </style>
     @stack('styles')
+    
+    <!-- Global Styles for Number Input Fields -->
+    <style>
+        /* Hide spinner arrows in number input fields across all forms */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* Firefox */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-container">

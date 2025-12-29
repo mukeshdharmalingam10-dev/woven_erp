@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Quotation;
 use App\Models\QuotationItem;
-use App\Models\Supplier;
+use App\Models\Customer;
 use App\Models\Product;
 use App\Models\CompanyInformation;
 use Illuminate\Http\Request;
@@ -15,13 +15,13 @@ class QuotationController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Quotation::with('supplier')->orderByDesc('id');
+        $query = Quotation::with('customer')->orderByDesc('id');
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('quotation_id', 'like', "%{$search}%")
-                    ->orWhereHas('supplier', function ($qs) use ($search) {
-                        $qs->where('supplier_name', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($qc) use ($search) {
+                        $qc->where('customer_name', 'like', "%{$search}%")
                             ->orWhere('code', 'like', "%{$search}%");
                     });
             });
@@ -34,10 +34,10 @@ class QuotationController extends Controller
 
     public function create()
     {
-        $suppliers = Supplier::orderBy('supplier_name')->get();
+        $customers = Customer::orderBy('customer_name')->get();
         $products = Product::orderBy('product_name')->get();
 
-        return view('transactions.quotations.create', compact('suppliers', 'products'));
+        return view('transactions.quotations.create', compact('customers', 'products'));
     }
 
     public function store(Request $request)
@@ -50,7 +50,7 @@ class QuotationController extends Controller
         $quotation->fill([
             'quotation_id' => $quotationId,
             'quotation_date' => $data['quotation_date'] ?? now()->format('Y-m-d'),
-            'supplier_id' => $data['supplier_id'],
+            'customer_id' => $data['customer_id'],
             'contact_person_name' => $data['contact_person_name'] ?? null,
             'contact_number' => $data['contact_number'] ?? null,
             'postal_code' => $data['postal_code'] ?? null,
@@ -105,17 +105,17 @@ class QuotationController extends Controller
 
     public function show(Quotation $quotation)
     {
-        $quotation->load(['supplier', 'items.product']);
+        $quotation->load(['customer', 'items.product']);
         return view('transactions.quotations.show', compact('quotation'));
     }
 
     public function edit(Quotation $quotation)
     {
-        $suppliers = Supplier::orderBy('supplier_name')->get();
+        $customers = Customer::orderBy('customer_name')->get();
         $products = Product::orderBy('product_name')->get();
-        $quotation->load(['items', 'supplier']);
+        $quotation->load(['items', 'customer']);
 
-        return view('transactions.quotations.edit', compact('quotation', 'suppliers', 'products'));
+        return view('transactions.quotations.edit', compact('quotation', 'customers', 'products'));
     }
 
     public function update(Request $request, Quotation $quotation)
@@ -123,7 +123,7 @@ class QuotationController extends Controller
         $data = $this->validateRequest($request, $quotation);
 
         $quotation->quotation_date = $data['quotation_date'] ?? $quotation->quotation_date ?? now()->format('Y-m-d');
-        $quotation->supplier_id = $data['supplier_id'];
+        $quotation->customer_id = $data['customer_id'];
         $quotation->contact_person_name = $data['contact_person_name'] ?? null;
         $quotation->contact_number = $data['contact_number'] ?? null;
         $quotation->postal_code = $data['postal_code'] ?? null;
@@ -181,7 +181,7 @@ class QuotationController extends Controller
     protected function validateRequest(Request $request, ?Quotation $quotation = null): array
     {
         $rules = [
-            'supplier_id' => ['required', 'exists:suppliers,id'],
+            'customer_id' => ['required', 'exists:customers,id'],
             'contact_person_name' => ['nullable', 'string', 'max:255'],
             'contact_number' => ['nullable', 'string', 'max:20'],
             'postal_code' => ['nullable', 'string', 'max:20'],
@@ -191,12 +191,12 @@ class QuotationController extends Controller
             'city' => ['nullable', 'string', 'max:100'],
             'state' => ['nullable', 'string', 'max:100'],
             'country' => ['nullable', 'string', 'max:100'],
-            'validity' => ['required', 'string'],
+            'validity' => ['nullable', 'string'],
             'payment_terms' => ['required', 'string'],
-            'inspection' => ['required', 'string'],
+            'inspection' => ['nullable', 'string'],
             'taxes' => ['required', 'string'],
-            'freight' => ['required', 'string'],
-            'special_condition' => ['required', 'string'],
+            'freight' => ['nullable', 'string'],
+            'special_condition' => ['nullable', 'string'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'exists:products,id'],
             'items.*.quantity' => ['required', 'numeric', 'min:0.01'],
@@ -223,7 +223,7 @@ class QuotationController extends Controller
 
     public function print(Quotation $quotation)
     {
-        $quotation->load(['supplier', 'items.product']);
+        $quotation->load(['customer', 'items.product']);
         
         $activeBranchId = session('active_branch_id');
         $companyInfo = null;

@@ -71,7 +71,7 @@
                 </tbody>
             </table>
         </div>
-        <div style="margin-top: 20px;">{{ $organizations->links() }}</div>
+        @include('partials.pagination', ['paginator' => $organizations, 'routeUrl' => route('organizations.index')])
     @else
         <div style="text-align: center; padding: 40px;">
             <p>No organizations found.</p>

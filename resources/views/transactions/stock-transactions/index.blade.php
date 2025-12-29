@@ -117,9 +117,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $stockTransactions->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $stockTransactions, 'routeUrl' => route('stock-transactions.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No stock transactions found.</p>

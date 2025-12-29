@@ -86,9 +86,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $inwards->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $inwards, 'routeUrl' => route('material-inwards.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No material inwards found.</p>

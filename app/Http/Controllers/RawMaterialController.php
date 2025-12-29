@@ -83,13 +83,12 @@ class RawMaterialController extends Controller
             'raw_material_name' => 'required|string|max:255',
             'unit_of_measure' => 'required|string|max:50',
             'description' => 'nullable|string',
-            'reorder_level' => 'required|integer|min:0',
+            'reorder_level' => 'nullable|integer|min:0',
         ], [
             'raw_material_name.required' => 'Raw Material Name is required.',
             'raw_material_name.max' => 'Raw Material Name must not exceed 255 characters.',
             'unit_of_measure.required' => 'Unit of Measure is required.',
             'unit_of_measure.max' => 'Unit of Measure must not exceed 50 characters.',
-            'reorder_level.required' => 'Reorder Level is required.',
             'reorder_level.integer' => 'Reorder Level must be a whole number.',
             'reorder_level.min' => 'Reorder Level must be at least 0.',
         ]);
@@ -132,7 +131,7 @@ class RawMaterialController extends Controller
                     'code' => $code,
                     'unit_of_measure' => $request->unit_of_measure,
                     'description' => $request->description,
-                    'reorder_level' => $request->reorder_level,
+                    'reorder_level' => $request->reorder_level ?? 0,
                     'organization_id' => $user->organization_id,
                     'branch_id' => $user->branch_id,
                     'created_by' => $user->id,
@@ -167,13 +166,12 @@ class RawMaterialController extends Controller
             'raw_material_name' => 'required|string|max:255',
             'unit_of_measure' => 'required|string|max:50',
             'description' => 'nullable|string',
-            'reorder_level' => 'required|integer|min:0',
+            'reorder_level' => 'nullable|integer|min:0',
         ], [
             'raw_material_name.required' => 'Raw Material Name is required.',
             'raw_material_name.max' => 'Raw Material Name must not exceed 255 characters.',
             'unit_of_measure.required' => 'Unit of Measure is required.',
             'unit_of_measure.max' => 'Unit of Measure must not exceed 50 characters.',
-            'reorder_level.required' => 'Reorder Level is required.',
             'reorder_level.integer' => 'Reorder Level must be a whole number.',
             'reorder_level.min' => 'Reorder Level must be at least 0.',
         ]);
@@ -183,7 +181,7 @@ class RawMaterialController extends Controller
             'raw_material_name' => $request->raw_material_name,
             'unit_of_measure' => $request->unit_of_measure,
             'description' => $request->description,
-            'reorder_level' => $request->reorder_level,
+            'reorder_level' => $request->reorder_level ?? $rawMaterial->reorder_level ?? 0,
         ]);
 
         return redirect()->route('raw-materials.index')

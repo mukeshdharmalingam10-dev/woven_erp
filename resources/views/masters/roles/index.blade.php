@@ -54,9 +54,7 @@
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            {{ $roles->links() }}
-        </div>
+        @include('partials.pagination', ['paginator' => $roles, 'routeUrl' => route('roles.index')])
     @else
         <div style="text-align: center; padding: 40px; color: #666;">
             <p style="font-size: 18px; margin-bottom: 20px;">No roles found.</p>
