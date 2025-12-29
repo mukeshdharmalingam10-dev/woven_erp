@@ -145,19 +145,19 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('sales-invoices', App\Http\Controllers\SalesInvoiceController::class);
     Route::get('sales-invoices/{sales_invoice}/print', [App\Http\Controllers\SalesInvoiceController::class, 'print'])->name('sales-invoices.print');
     
-    // Debit Notes
+    // Debit Notes - Specific routes must come BEFORE resource route
+    Route::get('debit-notes/reference-documents', [App\Http\Controllers\DebitNoteController::class, 'getReferenceDocuments'])->name('debit-notes.reference-documents');
+    Route::get('debit-notes/reference-document-details', [App\Http\Controllers\DebitNoteController::class, 'getReferenceDocumentDetails'])->name('debit-notes.reference-document-details');
     Route::resource('debit-notes', App\Http\Controllers\DebitNoteController::class);
     Route::post('debit-notes/{debit_note}/submit', [App\Http\Controllers\DebitNoteController::class, 'submit'])->name('debit-notes.submit');
     Route::post('debit-notes/{debit_note}/cancel', [App\Http\Controllers\DebitNoteController::class, 'cancel'])->name('debit-notes.cancel');
-    Route::get('debit-notes/reference-documents', [App\Http\Controllers\DebitNoteController::class, 'getReferenceDocuments'])->name('debit-notes.reference-documents');
-    Route::get('debit-notes/reference-document-details', [App\Http\Controllers\DebitNoteController::class, 'getReferenceDocumentDetails'])->name('debit-notes.reference-document-details');
     
-    // Credit Notes
+    // Credit Notes - Specific routes must come BEFORE resource route
+    Route::get('credit-notes/reference-documents', [App\Http\Controllers\CreditNoteController::class, 'getReferenceDocuments'])->name('credit-notes.reference-documents');
+    Route::get('credit-notes/reference-document-details', [App\Http\Controllers\CreditNoteController::class, 'getReferenceDocumentDetails'])->name('credit-notes.reference-document-details');
     Route::resource('credit-notes', App\Http\Controllers\CreditNoteController::class);
     Route::post('credit-notes/{credit_note}/submit', [App\Http\Controllers\CreditNoteController::class, 'submit'])->name('credit-notes.submit');
     Route::post('credit-notes/{credit_note}/cancel', [App\Http\Controllers\CreditNoteController::class, 'cancel'])->name('credit-notes.cancel');
-    Route::get('credit-notes/reference-documents', [App\Http\Controllers\CreditNoteController::class, 'getReferenceDocuments'])->name('credit-notes.reference-documents');
-    Route::get('credit-notes/reference-document-details', [App\Http\Controllers\CreditNoteController::class, 'getReferenceDocumentDetails'])->name('credit-notes.reference-document-details');
     
     // Quotations
     Route::resource('quotations', App\Http\Controllers\QuotationController::class);

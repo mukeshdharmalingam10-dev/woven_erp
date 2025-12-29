@@ -8,6 +8,7 @@ use App\Models\Supplier;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\SalesInvoice;
+use App\Models\PurchaseOrder;
 use App\Models\CompanyInformation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -80,6 +81,8 @@ class CreditNoteController extends Controller
 
     public function store(Request $request)
     {
+        // Clean up reference item values before validation
+        $request = $this->cleanReferenceItemValues($request);
         $data = $this->validateRequest($request);
 
         $creditNoteNumber = $data['credit_note_number'] ?? ('CN-' . strtoupper(Str::random(8)));
@@ -156,9 +159,12 @@ class CreditNoteController extends Controller
         $creditNote->save();
 
         foreach ($data['items'] as $item) {
+            // Ensure product_id is null if empty or invalid
+            $productId = !empty($item['product_id']) && is_numeric($item['product_id']) ? (int) $item['product_id'] : null;
+            
             CreditNoteItem::create([
                 'credit_note_id' => $creditNote->id,
-                'product_id' => $item['product_id'] ?? null,
+                'product_id' => $productId,
                 'item_name' => $item['item_name'] ?? null,
                 'description' => $item['description'] ?? null,
                 'quantity' => $item['quantity'] ?? 0,
@@ -239,6 +245,8 @@ class CreditNoteController extends Controller
                 ->with('error', 'Submitted credit notes cannot be edited.');
         }
 
+        // Clean up reference item values before validation
+        $request = $this->cleanReferenceItemValues($request);
         $data = $this->validateRequest($request, $creditNote);
 
         // Determine party type and ID
@@ -309,9 +317,12 @@ class CreditNoteController extends Controller
         $creditNote->items()->delete();
 
         foreach ($data['items'] as $item) {
+            // Ensure product_id is null if empty or invalid
+            $productId = !empty($item['product_id']) && is_numeric($item['product_id']) ? (int) $item['product_id'] : null;
+            
             CreditNoteItem::create([
                 'credit_note_id' => $creditNote->id,
-                'product_id' => $item['product_id'] ?? null,
+                'product_id' => $productId,
                 'item_name' => $item['item_name'] ?? null,
                 'description' => $item['description'] ?? null,
                 'quantity' => $item['quantity'] ?? 0,
@@ -389,21 +400,62 @@ class CreditNoteController extends Controller
     {
         $type = $request->get('type');
         $documents = [];
+        
+        $activeBranchId = session('active_branch_id');
+        $user = Auth::user();
+        $organizationId = $user ? $user->organization_id : null;
 
         switch ($type) {
             case 'Sales Invoice':
-                $documents = SalesInvoice::select('id', 'invoice_number as number', 'invoice_date as date')
-                    ->orderByDesc('invoice_date')
+                $query = SalesInvoice::select('id', 'invoice_number', 'invoice_date');
+                
+                // Filter by branch if active branch is set
+                if ($activeBranchId) {
+                    $query->where('branch_id', $activeBranchId);
+                }
+                
+                // Filter by organization if set
+                if ($organizationId) {
+                    $query->where('organization_id', $organizationId);
+                }
+                
+                $documents = $query->orderByDesc('invoice_date')
                     ->get()
                     ->map(function ($doc) {
                         return [
                             'id' => $doc->id,
-                            'number' => $doc->number,
-                            'date' => $doc->date->format('Y-m-d'),
+                            'number' => $doc->invoice_number,
+                            'date' => $doc->invoice_date ? $doc->invoice_date->format('Y-m-d') : '',
                         ];
-                    });
+                    })
+                    ->values()
+                    ->toArray();
                 break;
-            // Add cases for Purchase Invoice and Dispatch when models are available
+            case 'Purchase Invoice':
+                $query = PurchaseOrder::select('id', 'po_number');
+                
+                // Filter by branch if active branch is set
+                if ($activeBranchId) {
+                    $query->where('branch_id', $activeBranchId);
+                }
+                
+                // Filter by organization if set
+                if ($organizationId) {
+                    $query->where('organization_id', $organizationId);
+                }
+                
+                $documents = $query->orderBy('po_number')
+                    ->get()
+                    ->map(function ($doc) {
+                        return [
+                            'id' => $doc->id,
+                            'number' => $doc->po_number,
+                        ];
+                    })
+                    ->values()
+                    ->toArray();
+                break;
+            // Add cases for Dispatch when model is available
         }
 
         return response()->json($documents);
@@ -435,11 +487,40 @@ class CreditNoteController extends Controller
                                 'unit_of_measure' => $item->product->unit_of_measure ?? null,
                                 'rate' => $item->unit_price,
                             ];
-                        }),
+                        })->values()->toArray(),
                     ];
                 }
                 break;
-            // Add cases for Purchase Invoice and Dispatch when models are available
+            case 'Purchase Invoice':
+                $purchaseOrder = PurchaseOrder::with(['supplier', 'items.rawMaterial'])->find($id);
+                if ($purchaseOrder) {
+                    $details = [
+                        'party_type' => 'Supplier',
+                        'party_id' => $purchaseOrder->supplier_id,
+                        'party_name' => $purchaseOrder->supplier->supplier_name ?? null,
+                        'gst_number' => $purchaseOrder->supplier->gst_number ?? null,
+                        'currency' => 'INR',
+                        'items' => $purchaseOrder->items->map(function ($item) {
+                            // Check if rawMaterial exists before accessing its properties
+                            if (!$item->rawMaterial) {
+                                return null;
+                            }
+                            return [
+                                'product_id' => null, // Raw materials are not products, so set to null
+                                'item_name' => $item->rawMaterial->raw_material_name ?? null,
+                                'description' => '',
+                                'quantity' => $item->quantity ?? 0,
+                                'unit_of_measure' => $item->rawMaterial->unit_of_measure ?? null,
+                                'rate' => $item->unit_price ?? 0,
+                            ];
+                        })->filter(function ($item) {
+                            // Filter out null items and items without item_name
+                            return $item !== null && !empty($item['item_name']);
+                        })->values()->toArray(),
+                    ];
+                }
+                break;
+            // Add cases for Dispatch when model is available
         }
 
         return response()->json($details);
@@ -462,7 +543,7 @@ class CreditNoteController extends Controller
             'adjustments' => ['nullable', 'numeric'],
 
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['nullable', 'exists:products,id'],
+            'items.*.product_id' => ['nullable', 'sometimes', 'exists:products,id'],
             'items.*.item_name' => ['nullable', 'string', 'max:191'],
             'items.*.description' => ['nullable', 'string'],
             'items.*.quantity' => ['nullable', 'numeric', 'min:0'],
@@ -521,7 +602,18 @@ class CreditNoteController extends Controller
                     ];
                 }
                 break;
-            // Add cases for Purchase Invoice (Supplier) and Dispatch when models are available
+            case 'Purchase Invoice':
+                $purchaseOrder = PurchaseOrder::with('supplier')->find($documentId);
+                if ($purchaseOrder && $purchaseOrder->supplier) {
+                    return [
+                        'party_type' => 'Supplier',
+                        'party_id' => $purchaseOrder->supplier_id,
+                        'party_name' => $purchaseOrder->supplier->supplier_name,
+                        'gst_number' => $purchaseOrder->supplier->gst_number ?? null,
+                    ];
+                }
+                break;
+            // Add cases for Dispatch when model is available
         }
 
         return null;
@@ -579,5 +671,31 @@ class CreditNoteController extends Controller
                 // StockTransaction::create([...]);
             }
         }
+    }
+
+    protected function cleanReferenceItemValues(Request $request): Request
+    {
+        // Clean up reference item values (ref_0, ref_1, etc.) to null
+        $items = $request->input('items', []);
+        foreach ($items as $index => $item) {
+            if (isset($item['product_id'])) {
+                // Convert reference item values or empty strings to null
+                if (is_string($item['product_id']) && strpos($item['product_id'], 'ref_') === 0) {
+                    $items[$index]['product_id'] = null;
+                } elseif ($item['product_id'] === '' || $item['product_id'] === '0') {
+                    // Convert empty strings or '0' to null for integer columns
+                    $items[$index]['product_id'] = null;
+                } elseif (!empty($item['product_id'])) {
+                    // Ensure valid integer
+                    $items[$index]['product_id'] = (int) $item['product_id'];
+                } else {
+                    $items[$index]['product_id'] = null;
+                }
+            } else {
+                $items[$index]['product_id'] = null;
+            }
+        }
+        $request->merge(['items' => $items]);
+        return $request;
     }
 }

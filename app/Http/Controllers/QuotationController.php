@@ -95,7 +95,7 @@ class QuotationController extends Controller
 
         // Check if print is requested
         if ($request->has('print')) {
-            return redirect()->route('quotations.index', ['print_id' => $quotation->id])
+            return redirect(route('quotations.print', $quotation->id) . '?auto_print=1')
                 ->with('success', 'Quotation created and saved successfully.');
         }
 
@@ -162,7 +162,7 @@ class QuotationController extends Controller
 
         // Check if print is requested
         if ($request->has('print')) {
-            return redirect()->route('quotations.index', ['print_id' => $quotation->id])
+            return redirect(route('quotations.print', $quotation->id) . '?auto_print=1')
                 ->with('success', 'Quotation updated and saved successfully.');
         }
 

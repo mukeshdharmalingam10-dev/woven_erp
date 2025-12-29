@@ -3,6 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title>Quotation - {{ $quotation->quotation_id }}</title>
+    <script>
+        // Check for auto_print parameter immediately (before page loads)
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('auto_print') === '1') {
+                // Set a flag that we'll use later
+                window.AUTO_PRINT_ENABLED = true;
+            }
+        })();
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -135,6 +145,23 @@
         .terms-value {
             color: #111;
         }
+        .no-print {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .back-button:hover {
+            background: #5568d3;
+        }
         @media print {
             body {
                 margin: 0;
@@ -146,6 +173,11 @@
     </style>
 </head>
 <body>
+    <div class="no-print">
+        <a href="{{ route('quotations.index') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Quotations
+        </a>
+    </div>
     <div class="header">
         <div class="header-top">
             <div class="company-info">
@@ -314,9 +346,51 @@
     </div>
 
     <script>
-        window.onload = function() {
-            window.print();
-        };
+        // Auto-print when coming from Save and Print action
+        // Check URL parameter or sessionStorage flag
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionFlag = sessionStorage.getItem('quotation_auto_print') === '1';
+        const urlFlag = urlParams.get('auto_print') === '1';
+        const shouldAutoPrint = urlFlag || sessionFlag;
+        
+        if (shouldAutoPrint) {
+            // Clear the sessionStorage flag
+            if (sessionFlag) {
+                sessionStorage.removeItem('quotation_auto_print');
+            }
+            
+            // Function to trigger print
+            function triggerPrint() {
+                window.print();
+            }
+            
+            // Try to print immediately if page is already loaded
+            if (document.readyState === 'complete') {
+                setTimeout(triggerPrint, 100);
+            } else if (document.readyState === 'interactive') {
+                setTimeout(triggerPrint, 300);
+            } else {
+                // Wait for DOM to be ready
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(triggerPrint, 500);
+                });
+            }
+            
+            // Also try on window load as backup
+            window.addEventListener('load', function() {
+                setTimeout(triggerPrint, 1000);
+            });
+            
+            // Final fallback
+            setTimeout(triggerPrint, 2000);
+            
+            // Redirect back to quotations list after print dialog closes
+            window.addEventListener('afterprint', function() {
+                setTimeout(function() {
+                    window.location.href = '{{ route('quotations.index') }}';
+                }, 500);
+            });
+        }
     </script>
 </body>
 </html>

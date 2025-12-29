@@ -41,12 +41,12 @@
     </div>
 
     <div id="reference_document_number_container" style="display: none;">
-        <label for="reference_document_number" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Reference Document Number</label>
+        <label for="reference_document_id" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Reference Document</label>
         <select name="reference_document_id" id="reference_document_id"
                 style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
             <option value="">-- Select Document --</option>
         </select>
-        <input type="hidden" name="reference_document_number" id="reference_document_number">
+        <input type="hidden" name="reference_document_number" id="reference_document_number" value="{{ old('reference_document_number', $editing ? $debitNote->reference_document_number : '') }}">
         @error('reference_document_id')
             <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
         @enderror
@@ -154,14 +154,6 @@
                         <select name="items[{{ $index }}][product_id]" class="item-product"
                                 style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
                             <option value="">-- Select --</option>
-                            @foreach($products as $product)
-                                <option value="{{ $product->id }}"
-                                    data-unit="{{ $product->unit_of_measure ?? '' }}"
-                                    data-name="{{ $product->product_name }}"
-                                    {{ (int)($item['product_id'] ?? 0) === $product->id ? 'selected' : '' }}>
-                                    {{ $product->product_name }} ({{ $product->code }})
-                                </option>
-                            @endforeach
                         </select>
                         <input type="hidden" name="items[{{ $index }}][item_name]" class="item-name" value="{{ $item['item_name'] ?? '' }}">
                     </td>
@@ -307,6 +299,9 @@
     const debitNoteReason = @json($debitNoteReason);
     const companyState = @json($companyInfo->state ?? null);
     
+    // Store reference document items for dropdown
+    let referenceDocumentItems = [];
+    
      // Initialize on page load
      document.addEventListener('DOMContentLoaded', function() {
          updateReferenceDocumentVisibility();
@@ -314,6 +309,60 @@
          updateRemarksVisibility();
          loadReferenceDocuments();
          updatePartyOptions();
+         // Don't call updateItemDropdowns on page load - only when reference document is selected
+         
+         // If editing and reference document type is set, ensure container is visible and load items
+         @if($editing && isset($debitNote) && $debitNote->reference_document_type && $debitNote->reference_document_type !== 'Manual')
+             const refType = document.getElementById('reference_document_type').value;
+             if (refType && refType !== 'Manual') {
+                 document.getElementById('reference_document_number_container').style.display = 'block';
+                // Reference document number is stored in hidden field
+                
+                // Load reference document items if reference document is selected
+                @if($debitNote->reference_document_id)
+                    const refDocId = {{ $debitNote->reference_document_id }};
+                    // Load reference document details to populate items dropdown
+                    fetch(`{{ route('debit-notes.reference-document-details') }}?type=${encodeURIComponent(refType)}&id=${refDocId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.items && data.items.length > 0) {
+                                referenceDocumentItems = data.items;
+                                updateItemDropdowns();
+                                
+                                // Set selected values in dropdowns based on saved item names
+                                // But DON'T trigger change event to preserve saved values (rate, quantity, etc.)
+                                const allProductSelects = document.querySelectorAll('.item-product');
+                                allProductSelects.forEach(function(select) {
+                                    const row = select.closest('tr');
+                                    const itemNameInput = row.querySelector('.item-name');
+                                    const savedItemName = itemNameInput ? itemNameInput.value : '';
+                                    
+                                    if (savedItemName) {
+                                        // Find matching reference item
+                                        for (let i = 0; i < select.options.length; i++) {
+                                            const option = select.options[i];
+                                            const optionItemName = option.getAttribute('data-name');
+                                            if (optionItemName === savedItemName) {
+                                                select.value = option.value;
+                                                // Don't trigger change event - preserve saved values
+                                                // Only update unit if it's empty
+                                                const unitField = row.querySelector('.item-unit');
+                                                if (unitField && !unitField.value) {
+                                                    unitField.value = option.getAttribute('data-unit') || '';
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading reference document details for edit:', error);
+                        });
+                @endif
+             }
+         @endif
          
          // Initialize tax type
          const taxTypeElement = document.querySelector('input[name="tax_type"]:checked');
@@ -339,23 +388,76 @@
          @if($editing && isset($debitNote) && !$debitNote->isDraft())
              document.getElementById('debit_note_date').readOnly = true;
          @endif
+         
+         // Handle form submission - convert reference items to proper format
+         const form = document.querySelector('form');
+         if (form) {
+             form.addEventListener('submit', function(e) {
+                 // Process all item rows
+                 const allProductSelects = document.querySelectorAll('.item-product');
+                 allProductSelects.forEach(function(select) {
+                     const value = select.value;
+                     // If value starts with "ref_", it's a reference document item
+                     if (value && value.startsWith('ref_')) {
+                         // Get the index from "ref_0" -> 0
+                         const refIndex = parseInt(value.replace('ref_', ''));
+                         const selectedOption = select.options[select.selectedIndex];
+                         const itemNameInput = select.closest('tr').querySelector('.item-name');
+                         
+                         // Set product_id to empty (null) for reference items
+                         select.value = '';
+                         
+                         // Ensure item_name is set from the reference item
+                         if (selectedOption && itemNameInput) {
+                             const itemName = selectedOption.getAttribute('data-name') || '';
+                             if (itemName) {
+                                 itemNameInput.value = itemName;
+                             }
+                         }
+                     }
+                 });
+             });
+         }
      });
     
     // Reference Document Type Change
     document.getElementById('reference_document_type').addEventListener('change', function() {
+        // Clear all auto-populated fields when type changes
+        clearAutoPopulatedFields();
         updateReferenceDocumentVisibility();
         loadReferenceDocuments();
         if (this.value !== 'Manual') {
             document.getElementById('party_type').disabled = true;
+            document.getElementById('party_id').disabled = true;
         } else {
             document.getElementById('party_type').disabled = false;
+            document.getElementById('party_id').disabled = false;
         }
     });
     
     // Reference Document Selection
     document.getElementById('reference_document_id').addEventListener('change', function() {
+        console.log('Reference document selected, value:', this.value);
         if (this.value) {
+            // Set the reference document number from the selected option
+            const selectedOption = this.options[this.selectedIndex];
+            if (selectedOption) {
+                // Get document number from data-number attribute or text content
+                let docNumber = selectedOption.getAttribute('data-number');
+                if (!docNumber && selectedOption.textContent) {
+                    docNumber = selectedOption.textContent.trim();
+                }
+                if (docNumber) {
+                    console.log('Setting reference document number to:', docNumber);
+                    document.getElementById('reference_document_number').value = docNumber;
+                } else {
+                    console.warn('Could not extract document number from option');
+                }
+            }
             loadReferenceDocumentDetails();
+        } else {
+            console.log('Reference document cleared');
+            document.getElementById('reference_document_number').value = '';
         }
     });
     
@@ -413,6 +515,7 @@
         } else {
             container.style.display = 'none';
             document.getElementById('reference_document_id').value = '';
+            document.getElementById('reference_document_number').value = '';
         }
     }
     
@@ -444,6 +547,35 @@
         }
     }
     
+    function clearAutoPopulatedFields() {
+        // Clear party fields
+        document.getElementById('party_type').value = '';
+        document.getElementById('party_id').value = '';
+        document.getElementById('party_name').value = '';
+        document.getElementById('gst_number').value = '';
+        
+        // Clear reference document fields
+        document.getElementById('reference_document_id').value = '';
+        document.getElementById('reference_document_number').value = '';
+        
+        // Clear reference document items
+        referenceDocumentItems = [];
+        updateItemDropdowns();
+        
+        // Clear and reset line items to one empty row
+        const tbody = document.querySelector('#itemsTable tbody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            // Add one empty row
+            addItemRow();
+        }   
+        
+        // Reset totals
+        recalcTotals();
+        
+        // Reset party options
+        updatePartyOptions();
+    }
     
     function loadReferenceDocuments() {
         const type = document.getElementById('reference_document_type').value;
@@ -451,37 +583,75 @@
         
         if (!type || type === 'Manual') {
             select.innerHTML = '<option value="">-- Select Document --</option>';
+            document.getElementById('reference_document_number').value = '';
             return;
         }
         
+        // Show loading state
+        select.innerHTML = '<option value="">Loading...</option>';
+        select.disabled = true;
+        
         // Fetch documents via AJAX
         fetch(`{{ route('debit-notes.reference-documents') }}?type=${encodeURIComponent(type)}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
+                select.disabled = false;
                 select.innerHTML = '<option value="">-- Select Document --</option>';
-                data.forEach(function(doc) {
+                
+                if (data && data.length > 0) {
+                    data.forEach(function(doc) {
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        // Show only document number without date for all types
+                        option.textContent = doc.number;
+                        option.setAttribute('data-number', doc.number);
+                        select.appendChild(option);
+                    });
+                } else {
+                    // No documents found
                     const option = document.createElement('option');
-                    option.value = doc.id;
-                    option.textContent = doc.number + ' (' + doc.date + ')';
+                    option.value = '';
+                    option.textContent = '-- No documents found --';
                     select.appendChild(option);
-                });
+                }
                 
                 @if($editing && isset($debitNote) && $debitNote->reference_document_id)
                     select.value = {{ $debitNote->reference_document_id }};
+                    // Set the reference document number
+                    const selectedOption = select.options[select.selectedIndex];
+                    if (selectedOption) {
+                        document.getElementById('reference_document_number').value = selectedOption.getAttribute('data-number') || '{{ $debitNote->reference_document_number ?? '' }}';
+                    }
                 @endif
             })
             .catch(error => {
                 console.error('Error loading reference documents:', error);
-                // Fallback to sales invoices if available
-                if (type === 'Sales Invoice') {
+                select.disabled = false;
+                select.innerHTML = '<option value="">-- Error loading documents --</option>';
+                // Fallback to sales invoices if available and type is Sales Invoice
+                if (type === 'Sales Invoice' && typeof salesInvoices !== 'undefined' && salesInvoices.length > 0) {
                     select.innerHTML = '<option value="">-- Select Document --</option>';
                     salesInvoices.forEach(function(inv) {
                         const option = document.createElement('option');
                         option.value = inv.id;
                         option.textContent = inv.invoice_number;
                         option.setAttribute('data-date', inv.invoice_date);
+                        option.setAttribute('data-number', inv.invoice_number);
                         select.appendChild(option);
                     });
+                    
+                    @if($editing && isset($debitNote) && $debitNote->reference_document_id)
+                        select.value = {{ $debitNote->reference_document_id }};
+                        const selectedOption = select.options[select.selectedIndex];
+                        if (selectedOption) {
+                            document.getElementById('reference_document_number').value = selectedOption.getAttribute('data-number') || '{{ $debitNote->reference_document_number ?? '' }}';
+                        }
+                    @endif
                 }
             });
     }
@@ -490,32 +660,85 @@
         const type = document.getElementById('reference_document_type').value;
         const id = document.getElementById('reference_document_id').value;
         
-        if (!type || !id || type === 'Manual') return;
+        if (!type || !id || type === 'Manual') {
+            console.log('Skipping loadReferenceDocumentDetails - type:', type, 'id:', id);
+            return;
+        }
+        
+        console.log('Loading reference document details - type:', type, 'id:', id);
         
         fetch(`{{ route('debit-notes.reference-document-details') }}?type=${encodeURIComponent(type)}&id=${id}`)
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                return response.json();
+            })
             .then(data => {
+                console.log('Received data:', data);
                 if (data) {
                     if (data.party_type) {
-                        document.getElementById('party_type').value = data.party_type;
-                        document.getElementById('party_id').value = data.party_id;
-                        document.getElementById('party_name').value = data.party_name;
+                        console.log('Setting party info:', data.party_type, data.party_id, data.party_name);
+                        
+                        // Temporarily enable fields to set values
+                        const partyTypeField = document.getElementById('party_type');
+                        const partyIdField = document.getElementById('party_id');
+                        const wasPartyTypeDisabled = partyTypeField.disabled;
+                        const wasPartyIdDisabled = partyIdField.disabled;
+                        
+                        partyTypeField.disabled = false;
+                        partyIdField.disabled = false;
+                        
+                        // Set party type and update options
+                        partyTypeField.value = data.party_type;
+                        updatePartyOptions();
+                        
+                        // Set party ID and details after options are loaded
+                        setTimeout(function() {
+                            if (partyIdField) {
+                                partyIdField.value = data.party_id;
+                                updatePartyDetails();
+                                
+                                // Restore disabled state if needed
+                                if (wasPartyTypeDisabled) {
+                                    partyTypeField.disabled = true;
+                                }
+                                if (wasPartyIdDisabled) {
+                                    partyIdField.disabled = true;
+                                }
+                            }
+                        }, 300);
+                        
+                        // Set party name and GST number directly
+                        document.getElementById('party_name').value = data.party_name || '';
                         document.getElementById('gst_number').value = data.gst_number || '';
-                        updatePartyDetails();
+                        
+                        // Update tax type based on party
+                        updateTaxTypeFromParty();
+                    } else {
+                        console.log('No party_type in data');
                     }
                     
                     if (data.items && data.items.length > 0) {
-                        // Clear existing items and populate with reference document items
-                        const tbody = document.querySelector('#itemsTable tbody');
-                        tbody.innerHTML = '';
-                        data.items.forEach(function(item, index) {
-                            addItemRowFromReference(item, index);
-                        });
-                        recalcTotals();
+                        console.log('Storing reference document items:', data.items.length);
+                        // Store items for dropdown instead of auto-populating
+                        referenceDocumentItems = data.items;
+                        // Update all item dropdowns to include reference document items
+                        updateItemDropdowns();
+                    } else {
+                        console.log('No items in data or items array is empty');
+                        referenceDocumentItems = [];
+                        updateItemDropdowns();
                     }
+                } else {
+                    console.log('No data received');
                 }
             })
-            .catch(error => console.error('Error loading reference document details:', error));
+            .catch(error => {
+                console.error('Error loading reference document details:', error);
+                alert('Error loading document details: ' + error.message + '. Please check the browser console for more details.');
+            });
     }
     
     function updatePartyOptions() {
@@ -626,9 +849,35 @@
         
         // Set values from reference item
         const productSelect = row.querySelector('.item-product');
+        const itemNameInput = row.querySelector('.item-name');
+        
         if (item.product_id) {
+            // Product exists - select it from dropdown
             productSelect.value = item.product_id;
             productSelect.dispatchEvent(new Event('change'));
+        } else if (item.item_name) {
+            // Raw material or custom item - no product_id
+            // Set item name in hidden field
+            itemNameInput.value = item.item_name;
+            
+            // For raw materials, we need to show the item name
+            // Add a readonly text input or modify the select to show the name
+            // Create a text input to display the item name
+            const nameDisplay = document.createElement('input');
+            nameDisplay.type = 'text';
+            nameDisplay.value = item.item_name;
+            nameDisplay.readOnly = true;
+            nameDisplay.style.cssText = 'width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;';
+            nameDisplay.className = 'item-name-display';
+            
+            // Hide the product select and show the name display
+            productSelect.style.display = 'none';
+            productSelect.parentElement.insertBefore(nameDisplay, productSelect);
+            
+            // Set unit of measure
+            if (item.unit_of_measure) {
+                row.querySelector('.item-unit').value = item.unit_of_measure;
+            }
         }
         
         row.querySelector('.item-description').value = item.description || '';
@@ -643,12 +892,21 @@
     function createItemRow(index) {
         const tr = document.createElement('tr');
         tr.className = 'item-row';
+        
+        // Build reference document items options only if they exist
+        let refItemsOptions = '';
+        if (referenceDocumentItems && referenceDocumentItems.length > 0) {
+            refItemsOptions = referenceDocumentItems.map((item, idx) => 
+                `<option value="ref_${idx}" data-unit="${item.unit_of_measure || ''}" data-name="${item.item_name || ''}" data-type="reference" data-quantity="${item.quantity || ''}" data-rate="${item.rate || ''}" data-description="${item.description || ''}" data-product-id="${item.product_id || ''}">${item.item_name || 'Item ' + (idx + 1)}</option>`
+            ).join('');
+        }
+        
         tr.innerHTML = `
             <td style="padding: 8px;">
                 <select name="items[${index}][product_id]" class="item-product"
                         style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
                     <option value="">-- Select --</option>
-                    ${products.map(p => `<option value="${p.id}" data-unit="${p.unit}" data-name="${p.name}">${p.name}</option>`).join('')}
+                    ${refItemsOptions}
                 </select>
                 <input type="hidden" name="items[${index}][item_name]" class="item-name" value="">
             </td>
@@ -694,18 +952,122 @@
         recalcTotals();
     }
     
+    function updateItemDropdowns() {
+        // Update all existing item dropdowns
+        const allProductSelects = document.querySelectorAll('.item-product');
+        allProductSelects.forEach(function(select) {
+            updateSingleItemDropdown(select);
+        });
+    }
+    
+    function updateSingleItemDropdown(select) {
+        const currentValue = select.value;
+        const row = select.closest('tr');
+        const itemNameInput = row ? row.querySelector('.item-name') : null;
+        const savedItemName = itemNameInput ? itemNameInput.value : '';
+        
+        // Clear and rebuild dropdown
+        select.innerHTML = '<option value="">-- Select --</option>';
+        
+        // Only add reference document items if they exist (when reference document is selected)
+        if (referenceDocumentItems && referenceDocumentItems.length > 0) {
+            referenceDocumentItems.forEach(function(item, index) {
+                const option = document.createElement('option');
+                option.value = 'ref_' + index; // Use prefix to identify reference items
+                option.textContent = item.item_name || 'Item ' + (index + 1);
+                option.setAttribute('data-unit', item.unit_of_measure || '');
+                option.setAttribute('data-name', item.item_name || '');
+                option.setAttribute('data-type', 'reference');
+                option.setAttribute('data-quantity', item.quantity || '');
+                option.setAttribute('data-rate', item.rate || '');
+                option.setAttribute('data-description', item.description || '');
+                option.setAttribute('data-product-id', item.product_id || '');
+                select.appendChild(option);
+            });
+        }
+        
+        // Restore previous selection - try by value first, then by item name
+        if (currentValue && currentValue.startsWith('ref_')) {
+            // Try to restore by value
+            if (select.querySelector(`option[value="${currentValue}"]`)) {
+                select.value = currentValue;
+            }
+        } else if (savedItemName) {
+            // Try to restore by matching item name
+            for (let i = 0; i < select.options.length; i++) {
+                const option = select.options[i];
+                const optionItemName = option.getAttribute('data-name');
+                if (optionItemName === savedItemName) {
+                    select.value = option.value;
+                    break;
+                }
+            }
+        }
+    }
+    
     function attachRowEvents(row) {
         const productSelect = row.querySelector('.item-product');
         const quantityInput = row.querySelector('.item-quantity');
         const rateInput = row.querySelector('.item-rate');
         
+        // Update this dropdown with reference items (only if reference items are available)
+        if (referenceDocumentItems && referenceDocumentItems.length > 0) {
+            updateSingleItemDropdown(productSelect);
+        }
+        
         productSelect.addEventListener('change', function() {
             const option = this.options[this.selectedIndex];
-            const unit = option.getAttribute('data-unit') || '';
-            const name = option.getAttribute('data-name') || '';
+            const itemType = option.getAttribute('data-type');
             
-            row.querySelector('.item-unit').value = unit;
-            row.querySelector('.item-name').value = name;
+            if (itemType === 'reference') {
+                // Handle reference document item
+                const itemName = option.getAttribute('data-name') || '';
+                const unit = option.getAttribute('data-unit') || '';
+                const quantity = option.getAttribute('data-quantity') || '';
+                const rate = option.getAttribute('data-rate') || '';
+                const description = option.getAttribute('data-description') || '';
+                const productId = option.getAttribute('data-product-id') || '';
+                
+                // Set item name
+                row.querySelector('.item-name').value = itemName;
+                
+                // Only set unit if it's empty (preserve existing value when editing)
+                const unitField = row.querySelector('.item-unit');
+                if (unitField && !unitField.value) {
+                    unitField.value = unit;
+                }
+                
+                // Only set quantity if it's empty (preserve existing value when editing)
+                const quantityField = row.querySelector('.item-quantity');
+                if (quantityField && !quantityField.value) {
+                    quantityField.value = quantity;
+                }
+                
+                // Only set rate if it's empty (preserve existing value when editing)
+                const rateField = row.querySelector('.item-rate');
+                if (rateField && !rateField.value) {
+                    rateField.value = rate;
+                }
+                
+                // Only set description if it's empty (preserve existing value when editing)
+                const descriptionField = row.querySelector('.item-description');
+                if (descriptionField && !descriptionField.value) {
+                    descriptionField.value = description;
+                }
+                
+                // If it has a product_id, set it in the hidden field or select
+                if (productId) {
+                    const productSelectField = row.querySelector('.item-product');
+                    // Try to find matching product
+                    for (let i = 0; i < productSelectField.options.length; i++) {
+                        if (productSelectField.options[i].value == productId) {
+                            productSelectField.value = productId;
+                            break;
+                        }
+                    }
+                }
+            }
+            
             recalcRow(row);
         });
         

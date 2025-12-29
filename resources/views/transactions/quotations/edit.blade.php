@@ -22,7 +22,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('quotations.update', $quotation->id) }}">
+    <form method="POST" action="{{ route('quotations.update', $quotation->id) }}" id="quotationForm">
         @csrf
         @method('PUT')
         @include('transactions.quotations._form')
@@ -34,11 +34,29 @@
             <button type="submit" name="action" value="save" style="padding: 10px 22px; background: #667eea; color: white; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;">
                 <i class="fas fa-save"></i> Update Quotation
             </button>
-            <button type="submit" name="print" value="1" style="padding: 10px 22px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;">
+            <button type="submit" name="print" value="1" id="saveAndPrintBtn" style="padding: 10px 22px; background: #28a745; color: white; border: none; border-radius: 5px; font-weight: 500; cursor: pointer;">
                 <i class="fas fa-print"></i> Save and Print
             </button>
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+    // Handle Save and Print button - ensure print dialog opens after save
+    document.addEventListener('DOMContentLoaded', function() {
+
+        const saveAndPrintBtn = document.getElementById('saveAndPrintBtn');
+        const form = document.getElementById('quotationForm');
+        
+        if (saveAndPrintBtn && form) {
+            saveAndPrintBtn.addEventListener('click', function(e) {
+                // Set a flag in sessionStorage to indicate print is needed
+                sessionStorage.setItem('quotation_auto_print', '1');
+            });
+        }
+    });
+</script>
+@endpush
 @endsection
 
