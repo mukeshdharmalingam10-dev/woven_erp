@@ -157,7 +157,7 @@ class DashboardController extends Controller
         }
 
         // Sort by date and get latest 10
-        usort($activities, function($a, $b) {
+        usort($activities, function($a, $b) {   
             return $b['date'] <=> $a['date'];
         });
 

@@ -15,7 +15,7 @@ class QuotationController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Quotation::with('customer')->orderByDesc('id');
+        $query = Quotation::with('customer');
 
         if ($search = $request->get('search')) {
             $query->where(function ($q) use ($search) {
@@ -25,6 +25,33 @@ class QuotationController extends Controller
                             ->orWhere('code', 'like', "%{$search}%");
                     });
             });
+        }
+
+        // Sorting functionality
+        $sortBy = $request->get('sort_by', 'id');
+        $sortOrder = $request->get('sort_order', 'desc');
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+
+        switch ($sortBy) {
+            case 'quotation_id':
+                $query->orderBy('quotations.quotation_id', $sortOrder);
+                break;
+            case 'customer':
+                $query->leftJoin('customers', 'quotations.customer_id', '=', 'customers.id')
+                      ->orderBy('customers.customer_name', $sortOrder)
+                      ->select('quotations.*');
+                break;
+            case 'company_name':
+                $query->orderBy('quotations.company_name', $sortOrder);
+                break;
+            case 'total_amount':
+                $query->orderBy('quotations.total_amount', $sortOrder);
+                break;
+            default:
+                $query->orderBy('quotations.id', $sortOrder);
+                break;
         }
 
         $quotations = $query->paginate(15)->withQueryString();

@@ -296,7 +296,7 @@
         </div>
     </div>
 
-    @if($quotation->validity || $quotation->payment_terms || $quotation->inspection || $quotation->taxes || $quotation->freight || $quotation->special_condition)
+    @if($quotation->validity || $quotation->payment_terms || $quotation->taxes)
         <div class="section">
             <div class="section-title">Terms and Conditions</div>
             <div class="terms-section">
@@ -312,28 +312,10 @@
                         <span class="terms-value">{{ $quotation->payment_terms }}</span>
                     </div>
                 @endif
-                @if($quotation->inspection)
-                    <div class="terms-row">
-                        <span class="terms-label">Inspection:</span>
-                        <span class="terms-value">{{ $quotation->inspection }}</span>
-                    </div>
-                @endif
                 @if($quotation->taxes)
                     <div class="terms-row">
                         <span class="terms-label">Taxes:</span>
                         <span class="terms-value">{{ $quotation->taxes }}</span>
-                    </div>
-                @endif
-                @if($quotation->freight)
-                    <div class="terms-row">
-                        <span class="terms-label">Freight:</span>
-                        <span class="terms-value">{{ $quotation->freight }}</span>
-                    </div>
-                @endif
-                @if($quotation->special_condition)
-                    <div class="terms-row">
-                        <span class="terms-label">Special Condition:</span>
-                        <span class="terms-value">{{ $quotation->special_condition }}</span>
                     </div>
                 @endif
             </div>

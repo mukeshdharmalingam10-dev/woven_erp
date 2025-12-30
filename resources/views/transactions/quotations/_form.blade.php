@@ -286,45 +286,12 @@
         </div>
 
         <div>
-            <label for="inspection" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Inspection</label>
-            <input type="text" name="inspection" id="inspection"
-                   value="{{ old('inspection', $editing ? $quotation->inspection : '') }}"
-                   placeholder="e.g., At customer premises"
-                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
-            @error('inspection')
-                <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
             <label for="taxes" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Taxes <span style="color: red;">*</span></label>
             <input type="text" name="taxes" id="taxes" required
                    value="{{ old('taxes', $editing ? $quotation->taxes : '') }}"
                    placeholder="e.g., GST Extra as applicable"
                    style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
             @error('taxes')
-                <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="freight" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Freight</label>
-            <input type="text" name="freight" id="freight"
-                   value="{{ old('freight', $editing ? $quotation->freight : '') }}"
-                   placeholder="e.g., Extra / Included"
-                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
-            @error('freight')
-                <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <label for="special_condition" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Special Condition</label>
-            <input type="text" name="special_condition" id="special_condition"
-                   value="{{ old('special_condition', $editing ? $quotation->special_condition : '') }}"
-                   placeholder="Enter special condition"
-                   style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
-            @error('special_condition')
                 <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
             @enderror
         </div>

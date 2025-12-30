@@ -134,20 +134,8 @@
                 <p style="color: #333; font-size: 16px;">{{ $quotation->payment_terms ?? '-' }}</p>
             </div>
             <div>
-                <label style="display: block; margin-bottom: 5px; color: #666; font-size: 12px; font-weight: 600;">Inspection</label>
-                <p style="color: #333; font-size: 16px;">{{ $quotation->inspection ?? '-' }}</p>
-            </div>
-            <div>
                 <label style="display: block; margin-bottom: 5px; color: #666; font-size: 12px; font-weight: 600;">Taxes</label>
                 <p style="color: #333; font-size: 16px;">{{ $quotation->taxes ?? '-' }}</p>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 5px; color: #666; font-size: 12px; font-weight: 600;">Freight</label>
-                <p style="color: #333; font-size: 16px;">{{ $quotation->freight ?? '-' }}</p>
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 5px; color: #666; font-size: 12px; font-weight: 600;">Special Condition</label>
-                <p style="color: #333; font-size: 16px;">{{ $quotation->special_condition ?? '-' }}</p>
             </div>
         </div>
     </div>

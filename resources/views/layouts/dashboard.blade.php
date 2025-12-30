@@ -746,6 +746,12 @@
                     <span>Payment Tracking</span>
                 </a>
                 @endif
+                @if($user->canAccessPage('salary-masters.salary-setup.index'))
+                <a href="{{ route('salary-masters.index') }}" class="menu-item" title="Salary Master">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Salary Master</span>
+                </a>
+                @endif
                 {{-- Store Menu --}}
                 @php
                     $hasStockAccess = $user->canAccessPage('stock-transactions.index');
