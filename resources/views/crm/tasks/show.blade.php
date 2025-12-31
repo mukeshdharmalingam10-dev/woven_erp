@@ -26,9 +26,15 @@
             <div style="font-weight: 600; color: #111827;">{{ $task->assignedEmployee ? $task->assignedEmployee->employee_name : '-' }}</div>
         </div>
         <div>
-            <div style="font-size: 13px; color: #6b7280;">Due Date</div>
+            <div style="font-size: 13px; color: #6b7280;">Date</div>
             <div style="font-weight: 600; color: #111827;">{{ optional($task->due_date)->format('d-m-Y') }}</div>
         </div>
+        @if($task->notification_enabled && $task->notification_time)
+        <div>
+            <div style="font-size: 13px; color: #6b7280;">Notification Time</div>
+            <div style="font-weight: 600; color: #111827;">{{ $task->notification_time }}</div>
+        </div>
+        @endif
         <div>
             <div style="font-size: 13px; color: #6b7280;">Priority</div>
             <div style="font-weight: 600; color: #111827;">
@@ -111,6 +117,9 @@
                     <div style="font-size: 13px; color: #6b7280;">Notifications</div>
                     <div style="font-weight: 600; color: #111827;">
                         {{ $task->notification_enabled ? 'Enabled' : 'Disabled' }}
+                        @if($task->notification_enabled && $task->notification_time)
+                            <span style="font-size: 12px; color: #6b7280;">({{ $task->notification_time }})</span>
+                        @endif
                     </div>
                 </div>
             </div>

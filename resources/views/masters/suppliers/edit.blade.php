@@ -53,9 +53,10 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>
                     <label for="phone_number" style="display: block; margin-bottom: 8px; color: #333; font-weight: 500;">Phone Number</label>
-                    <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number', $supplier->phone_number) }}"
+                    <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number', $supplier->phone_number) }}" maxlength="10"
                         style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;"
-                        placeholder="Enter phone number">
+                        placeholder="Enter 10-digit phone number" pattern="[0-9]*" inputmode="numeric">
+                    <p id="phone_error" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: none;">Phone number must contain only numbers.</p>
                     @error('phone_number')
                         <p style="color: #dc3545; font-size: 12px; margin-top: 5px;">{{ $message }}</p>
                     @enderror
@@ -261,8 +262,84 @@
         document.getElementById('ifsc_code').value = '{{ $supplier->ifsc_code ?? '' }}';
         document.getElementById('account_number').value = '{{ $supplier->account_number ?? '' }}';
         document.getElementById('branch_name').value = '{{ $supplier->branch_name ?? '' }}';
+        document.getElementById('phone_error').style.display = 'none';
     }
 
+    // Phone number validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const phoneInput = document.getElementById('phone_number');
+        const phoneError = document.getElementById('phone_error');
+
+        // Clean existing value on load (remove non-numeric characters)
+        if (phoneInput.value) {
+            phoneInput.value = phoneInput.value.replace(/[^0-9]/g, '').substring(0, 10);
+        }
+
+        // Restrict input to numbers only
+        phoneInput.addEventListener('input', function(e) {
+            // Remove any non-numeric characters
+            let value = e.target.value.replace(/[^0-9]/g, '');
+            
+            // Limit to 10 digits
+            if (value.length > 10) {
+                value = value.substring(0, 10);
+            }
+            
+            e.target.value = value;
+            
+            // Show/hide error message (only if there's invalid input - non-numeric characters)
+            if (value.length > 0 && /[^0-9]/.test(value)) {
+                phoneError.style.display = 'block';
+                phoneError.textContent = 'Phone number must contain only numbers.';
+            } else {
+                phoneError.style.display = 'none';
+            }
+        });
+
+        // Prevent non-numeric characters on keypress
+        phoneInput.addEventListener('keypress', function(e) {
+            // Allow: backspace, delete, tab, escape, enter, and numbers
+            if ([46, 8, 9, 27, 13, 110, 190].indexOf(e.keyCode) !== -1 ||
+                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (e.keyCode === 65 && e.ctrlKey === true) ||
+                (e.keyCode === 67 && e.ctrlKey === true) ||
+                (e.keyCode === 86 && e.ctrlKey === true) ||
+                (e.keyCode === 88 && e.ctrlKey === true) ||
+                // Allow: home, end, left, right
+                (e.keyCode >= 35 && e.keyCode <= 39)) {
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+            // Prevent typing if already 10 digits
+            if (phoneInput.value.length >= 10 && e.keyCode >= 48 && e.keyCode <= 57) {
+                e.preventDefault();
+            }
+        });
+
+        // Prevent paste of non-numeric content
+        phoneInput.addEventListener('paste', function(e) {
+            const paste = (e.clipboardData || window.clipboardData).getData('text');
+            const numericOnly = paste.replace(/[^0-9]/g, '').substring(0, 10);
+            e.preventDefault();
+            phoneInput.value = numericOnly;
+            // Error only shows if non-numeric characters were pasted (which are now removed)
+            phoneError.style.display = 'none';
+        });
+
+        // Validate on blur
+        phoneInput.addEventListener('blur', function() {
+            const value = phoneInput.value;
+            if (value.length > 0 && /[^0-9]/.test(value)) {
+                phoneError.style.display = 'block';
+                phoneError.textContent = 'Phone number must contain only numbers.';
+            } else {
+                phoneError.style.display = 'none';
+            }
+        });
+    });
 </script>
 @endpush
 @endsection

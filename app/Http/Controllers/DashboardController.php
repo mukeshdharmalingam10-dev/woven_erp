@@ -13,8 +13,10 @@ use App\Models\SalesInvoice;
 use App\Models\PurchaseOrder;
 use App\Models\PettyCash;
 use App\Models\Attendance;
+use App\Models\Task;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -154,6 +156,34 @@ class DashboardController extends Controller
                 'time' => $invoice->created_at->diffForHumans(),
                 'date' => $invoice->created_at,
             ];
+        }
+
+        // Task Notifications - Show tasks that have notifications enabled and scheduled time has arrived
+        $now = Carbon::now();
+        $tasks = Task::when($branchId, function($q) use ($branchId) {
+            $q->where('branch_id', $branchId);
+        })
+        ->where('notification_enabled', true)
+        ->whereNotNull('notification_time')
+        ->get();
+        
+        foreach ($tasks as $task) {
+            // Combine created date and time to create the notification datetime
+            $notificationDateTime = Carbon::parse($task->created_at->format('Y-m-d') . ' ' . $task->notification_time);
+            
+            // Show notification if the scheduled time has passed (within last 24 hours)
+            // This ensures notifications appear on the dashboard when the time arrives
+            if ($notificationDateTime->lte($now) && $notificationDateTime->gte($now->copy()->subDay())) {
+                $activities[] = [
+                    'type' => 'task_notification',
+                    'icon' => 'fa-bell',
+                    'color' => '#ffc107',
+                    'title' => 'Task Notification',
+                    'description' => "Task: {$task->task_name}",
+                    'time' => $notificationDateTime->diffForHumans(),
+                    'date' => $notificationDateTime,
+                ];
+            }
         }
 
         // Sort by date and get latest 10

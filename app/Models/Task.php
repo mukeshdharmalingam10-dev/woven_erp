@@ -12,28 +12,16 @@ class Task extends Model
 
     protected $fillable = [
         'task_name',
-        'assigned_to',
-        'due_date',
-        'priority',
-        'status',
-        'related_customer_id',
         'task_description',
-        'task_type',
-        'external_agency',
         'comments_updates',
-        'is_recurring',
-        'repeat_interval',
-        'recurring_end_date',
         'notification_enabled',
+        'notification_time',
         'created_by',
         'organization_id',
         'branch_id',
     ];
 
     protected $casts = [
-        'due_date' => 'date',
-        'recurring_end_date' => 'date',
-        'is_recurring' => 'boolean',
         'notification_enabled' => 'boolean',
     ];
 
