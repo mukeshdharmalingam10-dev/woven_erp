@@ -14,6 +14,16 @@
     </div>
 
     <div>
+        <label for="date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Date</label>
+        <input type="date" name="date" id="date"
+               value="{{ old('date', $editing && $task->date ? (\Carbon\Carbon::parse($task->date)->format('Y-m-d')) : date('Y-m-d')) }}"
+               style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
+        @error('date')
+            <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
+        @enderror
+    </div>
+
+    <div>
         <label for="notification_time" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Time <span id="time_required" style="color:red; display: none;">*</span></label>
         <input type="time" name="notification_time" id="notification_time" step="60"
                value="{{ old('notification_time', $editing && $task->notification_time ? (strlen($task->notification_time) > 5 ? substr($task->notification_time, 0, 5) : $task->notification_time) : '') }}"

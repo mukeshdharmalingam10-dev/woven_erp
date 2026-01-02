@@ -169,37 +169,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('payment-trackings', App\Http\Controllers\PaymentTrackingController::class);
     
     // Salary Master
-    Route::get('salary-masters', [App\Http\Controllers\SalaryMasterController::class, 'index'])->name('salary-masters.index');
-    Route::get('salary-masters/get-employee-salary-setup', [App\Http\Controllers\SalaryMasterController::class, 'getEmployeeSalarySetup'])->name('salary-masters.get-employee-salary-setup');
-    
-    // Salary Setup
-    Route::get('salary-masters/salary-setup', [App\Http\Controllers\SalaryMasterController::class, 'salarySetupIndex'])->name('salary-masters.salary-setup.index');
-    Route::get('salary-masters/salary-setup/create', [App\Http\Controllers\SalaryMasterController::class, 'salarySetupCreate'])->name('salary-masters.salary-setup.create');
-    Route::post('salary-masters/salary-setup', [App\Http\Controllers\SalaryMasterController::class, 'salarySetupStore'])->name('salary-masters.salary-setup.store');
-    Route::get('salary-masters/salary-setup/{salarySetup}', [App\Http\Controllers\SalaryMasterController::class, 'salarySetupShow'])->name('salary-masters.salary-setup.show');
-    Route::get('salary-masters/salary-setup/{salarySetup}/edit', [App\Http\Controllers\SalaryMasterController::class, 'salarySetupEdit'])->name('salary-masters.salary-setup.edit');
-    Route::put('salary-masters/salary-setup/{salarySetup}', [App\Http\Controllers\SalaryMasterController::class, 'salarySetupUpdate'])->name('salary-masters.salary-setup.update');
-    Route::delete('salary-masters/salary-setup/{salarySetup}', [App\Http\Controllers\SalaryMasterController::class, 'salarySetupDestroy'])->name('salary-masters.salary-setup.destroy');
-    
-    // Salary Advance
-    Route::get('salary-masters/salary-advance', [App\Http\Controllers\SalaryMasterController::class, 'salaryAdvanceIndex'])->name('salary-masters.salary-advance.index');
-    Route::get('salary-masters/salary-advance/create', [App\Http\Controllers\SalaryMasterController::class, 'salaryAdvanceCreate'])->name('salary-masters.salary-advance.create');
-    Route::post('salary-masters/salary-advance', [App\Http\Controllers\SalaryMasterController::class, 'salaryAdvanceStore'])->name('salary-masters.salary-advance.store');
-    Route::get('salary-masters/salary-advance/{salaryAdvance}', [App\Http\Controllers\SalaryMasterController::class, 'salaryAdvanceShow'])->name('salary-masters.salary-advance.show');
-    Route::get('salary-masters/salary-advance/{salaryAdvance}/edit', [App\Http\Controllers\SalaryMasterController::class, 'salaryAdvanceEdit'])->name('salary-masters.salary-advance.edit');
-    Route::put('salary-masters/salary-advance/{salaryAdvance}', [App\Http\Controllers\SalaryMasterController::class, 'salaryAdvanceUpdate'])->name('salary-masters.salary-advance.update');
-    Route::delete('salary-masters/salary-advance/{salaryAdvance}', [App\Http\Controllers\SalaryMasterController::class, 'salaryAdvanceDestroy'])->name('salary-masters.salary-advance.destroy');
-    
-    // Salary Processing
-    Route::get('salary-masters/salary-processing', [App\Http\Controllers\SalaryMasterController::class, 'salaryProcessingIndex'])->name('salary-masters.salary-processing.index');
-    Route::get('salary-masters/salary-processing/create', [App\Http\Controllers\SalaryMasterController::class, 'salaryProcessingCreate'])->name('salary-masters.salary-processing.create');
-    Route::post('salary-masters/salary-processing', [App\Http\Controllers\SalaryMasterController::class, 'salaryProcessingStore'])->name('salary-masters.salary-processing.store');
-    Route::get('salary-masters/salary-processing/{salaryProcessing}', [App\Http\Controllers\SalaryMasterController::class, 'salaryProcessingShow'])->name('salary-masters.salary-processing.show');
-    Route::get('salary-masters/salary-processing/{salaryProcessing}/edit', [App\Http\Controllers\SalaryMasterController::class, 'salaryProcessingEdit'])->name('salary-masters.salary-processing.edit');
-    Route::put('salary-masters/salary-processing/{salaryProcessing}', [App\Http\Controllers\SalaryMasterController::class, 'salaryProcessingUpdate'])->name('salary-masters.salary-processing.update');
-    Route::post('salary-masters/salary-processing/{salaryProcessing}/mark-paid', [App\Http\Controllers\SalaryMasterController::class, 'markPaid'])->name('salary-masters.salary-processing.mark-paid');
-    Route::delete('salary-masters/salary-processing/{salaryProcessing}', [App\Http\Controllers\SalaryMasterController::class, 'salaryProcessingDestroy'])->name('salary-masters.salary-processing.destroy');
-    
+    Route::get('salary-masters/get-attendance', [App\Http\Controllers\SalaryMasterController::class, 'getAttendance'])->name('salary-masters.get-attendance');
+    Route::resource('salary-masters', App\Http\Controllers\SalaryMasterController::class);
     
     // Daily Expense - Specific routes must come BEFORE resource route
     Route::get('petty-cash/{petty_cash}/receipt', [App\Http\Controllers\PettyCashController::class, 'showReceipt'])->name('petty-cash.receipt');
@@ -236,4 +207,5 @@ Route::middleware(['auth'])->group(function () {
     
     // CRM - Tasks
     Route::resource('tasks', App\Http\Controllers\TaskController::class);
+    Route::get('tasks/notifications/pending', [App\Http\Controllers\TaskController::class, 'getPendingNotifications'])->name('tasks.notifications.pending');
 });

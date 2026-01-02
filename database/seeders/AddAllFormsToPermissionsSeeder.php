@@ -43,7 +43,6 @@ class AddAllFormsToPermissionsSeeder extends Seeder
             ['form_name' => 'Sales Invoices', 'name' => 'sales_invoices', 'slug' => 'sales-invoices', 'module' => 'Transactions', 'is_active' => true],
             ['form_name' => 'Quotations', 'name' => 'quotations', 'slug' => 'quotations', 'module' => 'Transactions', 'is_active' => true],
             ['form_name' => 'Stock Transactions', 'name' => 'stock_transactions', 'slug' => 'stock-transactions', 'module' => 'Transactions', 'is_active' => true],
-            ['form_name' => 'Salary Masters', 'name' => 'salary_masters', 'slug' => 'salary-masters', 'module' => 'Transactions', 'is_active' => true],
             
             // Production Forms
             ['form_name' => 'Work Orders', 'name' => 'work_orders', 'slug' => 'work-orders', 'module' => 'Productions', 'is_active' => true],

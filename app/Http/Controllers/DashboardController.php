@@ -168,8 +168,9 @@ class DashboardController extends Controller
         ->get();
         
         foreach ($tasks as $task) {
-            // Combine created date and time to create the notification datetime
-            $notificationDateTime = Carbon::parse($task->created_at->format('Y-m-d') . ' ' . $task->notification_time);
+            // Use task date field if available, otherwise fall back to created_at
+            $taskDate = $task->date ? $task->date->format('Y-m-d') : $task->created_at->format('Y-m-d');
+            $notificationDateTime = Carbon::parse($taskDate . ' ' . $task->notification_time);
             
             // Show notification if the scheduled time has passed (within last 24 hours)
             // This ensures notifications appear on the dashboard when the time arrives

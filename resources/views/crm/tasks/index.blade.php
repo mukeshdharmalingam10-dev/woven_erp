@@ -55,7 +55,7 @@
                         <tr style="border-bottom: 1px solid #dee2e6;">
                             <td style="padding: 12px; color: #666;">{{ ($tasks->currentPage() - 1) * $tasks->perPage() + $loop->iteration }}</td>
                             <td style="padding: 12px; color: #333; font-weight: 500;">{{ $task->task_name }}</td>
-                            <td style="padding: 12px; color: #666;">{{ $task->created_at->format('d-m-Y') }}</td>
+                            <td style="padding: 12px; color: #666;">{{ $task->date ? $task->date->format('d-m-Y') : ($task->created_at->format('d-m-Y')) }}</td>
                             <td style="padding: 12px; color: #666;">
                                 @if($task->notification_time)
                                     @php

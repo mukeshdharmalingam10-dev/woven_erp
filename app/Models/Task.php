@@ -12,6 +12,7 @@ class Task extends Model
 
     protected $fillable = [
         'task_name',
+        'date',
         'task_description',
         'comments_updates',
         'notification_enabled',
@@ -23,6 +24,7 @@ class Task extends Model
 
     protected $casts = [
         'notification_enabled' => 'boolean',
+        'date' => 'date',
     ];
 
     public function assignedEmployee()

@@ -746,7 +746,7 @@
                     <span>Payment Tracking</span>
                 </a>
                 @endif
-                @if($user->canAccessPage('salary-masters.salary-setup.index'))
+                @if($user->canAccessPage('salary-masters.index'))
                 <a href="{{ route('salary-masters.index') }}" class="menu-item" title="Salary Master">
                     <i class="fas fa-money-bill-wave"></i>
                     <span>Salary Master</span>
@@ -1301,8 +1301,175 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-
     </script>
+
+    <!-- Task Notification Popup Modal -->
+    <div id="taskNotificationModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+        <div style="background: white; border-radius: 10px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3); position: relative; animation: slideIn 0.3s ease;">
+            <button id="closeNotificationModal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999; padding: 0; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">&times;</button>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="width: 60px; height: 60px; background: #ffc107; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <i class="fas fa-bell" style="font-size: 30px; color: white;"></i>
+                </div>
+                <h3 style="margin: 0 0 10px 0; color: #333; font-size: 22px;">Task Reminder</h3>
+                <p style="color: #666; font-size: 14px; margin: 0;">It's time for your task!</p>
+            </div>
+            <div id="notificationContent" style="border-top: 1px solid #eee; padding-top: 20px;">
+                <!-- Notification content will be inserted here -->
+            </div>
+            <div style="margin-top: 25px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="dismissNotification" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 500;">Dismiss</button>
+                <a id="viewTaskLink" href="#" style="padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; font-weight: 500; display: inline-block;">View Task</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes ring {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        #taskNotificationModal.show {
+            display: flex !important;
+        }
+        .ring-animation {
+            animation: ring 0.5s ease-in-out;
+        }
+    </style>
+
+    <script>
+        // Task Notification System
+        let shownNotifications = new Set(); // Track shown notifications to avoid duplicates
+        let notificationCheckInterval;
+
+        function checkTaskNotifications() {
+            fetch('{{ route("tasks.notifications.pending") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(tasks => {
+                if (tasks && tasks.length > 0) {
+                    tasks.forEach(task => {
+                        // Create unique key for this notification
+                        const notificationKey = `task_${task.id}_${task.notification_datetime}`;
+                        
+                        // Only show if not already shown
+                        if (!shownNotifications.has(notificationKey)) {
+                            shownNotifications.add(notificationKey);
+                            showTaskNotification(task);
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error checking task notifications:', error);
+            });
+        }
+
+        function showTaskNotification(task) {
+            const modal = document.getElementById('taskNotificationModal');
+            const content = document.getElementById('notificationContent');
+            const viewLink = document.getElementById('viewTaskLink');
+
+            // Update content
+            content.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 5px;">Task Name</div>
+                    <div style="font-weight: 600; color: #111827; font-size: 16px;">${escapeHtml(task.task_name)}</div>
+                </div>
+                ${task.task_description ? `
+                <div style="margin-bottom: 15px;">
+                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 5px;">Description</div>
+                    <div style="color: #333; font-size: 14px;">${escapeHtml(task.task_description)}</div>
+                </div>
+                ` : ''}
+                <div>
+                    <div style="font-size: 13px; color: #6b7280; margin-bottom: 5px;">Scheduled Time</div>
+                    <div style="color: #333; font-size: 14px;">${escapeHtml(task.notification_datetime)}</div>
+                </div>
+            `;
+
+            // Set view link
+            viewLink.href = `/tasks/${task.id}`;
+
+            // Show modal with animation
+            modal.classList.add('show');
+            
+            // Play notification sound (if browser allows)
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBzGF0fPTgjMGHm7A7+OZURAJSpvh8sNrJAYwg9Hz1oQ1CBxuwO/jmlEQ');
+                audio.play().catch(() => {}); // Ignore errors if autoplay is blocked
+            } catch(e) {}
+
+            // Auto-close after 30 seconds
+            setTimeout(() => {
+                closeNotificationModal();
+            }, 30000);
+        }
+
+        function closeNotificationModal() {
+            const modal = document.getElementById('taskNotificationModal');
+            modal.classList.remove('show');
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('taskNotificationModal');
+            const closeBtn = document.getElementById('closeNotificationModal');
+            const dismissBtn = document.getElementById('dismissNotification');
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeNotificationModal);
+            }
+
+            if (dismissBtn) {
+                dismissBtn.addEventListener('click', closeNotificationModal);
+            }
+
+            // Close on background click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    closeNotificationModal();
+                }
+            });
+
+            // Start checking for notifications every 30 seconds
+            checkTaskNotifications(); // Check immediately
+            notificationCheckInterval = setInterval(checkTaskNotifications, 30000); // Then every 30 seconds
+        });
+
+        // Clear shown notifications every hour to allow re-notification
+        setInterval(() => {
+            shownNotifications.clear();
+        }, 3600000); // 1 hour
+    </script>
+
     @stack('scripts')
 </body>
 </html>

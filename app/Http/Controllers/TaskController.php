@@ -39,6 +39,7 @@ class TaskController extends Controller
 
         $rules = [
             'task_name' => ['required', 'string', 'max:191'],
+            'date' => ['nullable', 'date'],
             'task_description' => ['nullable', 'string'],
             'comments_updates' => ['nullable', 'string'],
             'notification_enabled' => ['nullable', 'boolean'],
@@ -69,6 +70,7 @@ class TaskController extends Controller
 
         $task = new Task();
         $task->task_name = $data['task_name'];
+        $task->date = $data['date'] ?? date('Y-m-d');
         $task->task_description = $data['task_description'] ?? null;
         $task->comments_updates = $data['comments_updates'] ?? null;
         $task->notification_enabled = $request->has('notification_enabled');
@@ -107,6 +109,7 @@ class TaskController extends Controller
 
         $rules = [
             'task_name' => ['required', 'string', 'max:191'],
+            'date' => ['nullable', 'date'],
             'task_description' => ['nullable', 'string'],
             'comments_updates' => ['nullable', 'string'],
             'notification_enabled' => ['nullable', 'boolean'],
@@ -136,6 +139,7 @@ class TaskController extends Controller
         }
 
         $task->task_name = $data['task_name'];
+        $task->date = $data['date'] ?? $task->date ?? date('Y-m-d');
         $task->task_description = $data['task_description'] ?? null;
         $task->comments_updates = $data['comments_updates'] ?? null;
         $task->notification_enabled = $request->has('notification_enabled');
@@ -152,6 +156,74 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.index')
             ->with('success', 'Task deleted successfully.');
+    }
+
+    /**
+     * Get pending task notifications for the current user
+     */
+    public function getPendingNotifications(Request $request)
+    {
+        $user = Auth::user();
+        $now = \Carbon\Carbon::now();
+        
+        // Get tasks with notifications enabled that are due now
+        $tasks = Task::where('notification_enabled', true)
+            ->whereNotNull('notification_time')
+            ->whereNotNull('date')
+            ->when($user->organization_id, function($q) use ($user) {
+                $q->where('organization_id', $user->organization_id);
+            })
+            ->when(session('active_branch_id'), function($q) {
+                $q->where('branch_id', session('active_branch_id'));
+            })
+            ->get()
+            ->filter(function($task) use ($now) {
+                if (!$task->date) {
+                    return false;
+                }
+                
+                // Combine task date and notification time
+                try {
+                    $taskDate = $task->date instanceof \Carbon\Carbon 
+                        ? $task->date->format('Y-m-d') 
+                        : \Carbon\Carbon::parse($task->date)->format('Y-m-d');
+                    
+                    $notificationDateTime = \Carbon\Carbon::parse($taskDate . ' ' . $task->notification_time);
+                    
+                    // Check if notification time is within current minute or just passed (within last 5 minutes)
+                    // Also check if it's today's date
+                    $diffInMinutes = abs($now->diffInMinutes($notificationDateTime));
+                    $isToday = $notificationDateTime->format('Y-m-d') === $now->format('Y-m-d');
+                    
+                    // Show notification if it's today, within the current minute or just passed (within last 5 minutes)
+                    return $isToday && $notificationDateTime->lte($now) && $diffInMinutes <= 5;
+                } catch (\Exception $e) {
+                    return false;
+                }
+            })
+            ->map(function($task) {
+                try {
+                    $taskDate = $task->date instanceof \Carbon\Carbon 
+                        ? $task->date->format('Y-m-d') 
+                        : \Carbon\Carbon::parse($task->date)->format('Y-m-d');
+                    
+                    $notificationDateTime = \Carbon\Carbon::parse($taskDate . ' ' . $task->notification_time);
+                    
+                    return [
+                        'id' => $task->id,
+                        'task_name' => $task->task_name,
+                        'task_description' => $task->task_description,
+                        'notification_time' => $task->notification_time,
+                        'notification_datetime' => $notificationDateTime->format('d-m-Y H:i'),
+                    ];
+                } catch (\Exception $e) {
+                    return null;
+                }
+            })
+            ->filter()
+            ->values();
+
+        return response()->json($tasks);
     }
 }
 
