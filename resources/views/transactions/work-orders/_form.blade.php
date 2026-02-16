@@ -9,7 +9,7 @@
                style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd; background: #f5f5f5;">
     </div>
 
-    <div>
+    <div> 
         <label for="work_order_date" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Work Order Date <span style="color:red">*</span></label>
         <input type="date" name="work_order_date" id="work_order_date" required
                value="{{ old('work_order_date', $editing ? optional($workOrder->work_order_date)->format('Y-m-d') : now()->format('Y-m-d')) }}"
