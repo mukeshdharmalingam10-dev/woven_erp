@@ -58,6 +58,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Subdirectory (e.g. when running at http://localhost/woven_erp)
+    |--------------------------------------------------------------------------
+    |
+    | Set APP_SUBDIRECTORY=woven_erp in .env when the app is not at document root.
+    |
+    */
+
+    'subdirectory' => env('APP_SUBDIRECTORY', ''),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |
