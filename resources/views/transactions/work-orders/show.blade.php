@@ -38,9 +38,9 @@
             <div style="font-weight: 600; color: #111827;">{{ number_format($workOrder->quantity_to_produce, 0) }}</div>
         </div>
         <div>
-            <div style="font-size: 13px; color: #6b7280;">Per Kg Weight</div>
+            <div style="font-size: 13px; color: #6b7280;">Per Bag Weight</div>
             <div style="font-weight: 600; color: #111827;">
-                {{ $workOrder->per_kg_weight !== null ? number_format($workOrder->per_kg_weight, 3) : '-' }}
+                {{ $workOrder->per_bag_weight !== null ? number_format($workOrder->per_bag_weight, 3) : '-' }}
             </div>
         </div>
         <div>

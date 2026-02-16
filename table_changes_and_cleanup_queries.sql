@@ -1,10 +1,19 @@
 -- =====================================================
 -- TABLE CHANGES AND DATA CLEANUP QUERIES
 -- Date: Today
--- Tables: Suppliers, Debit Notes, Credit Notes, Daily Expenses
+-- Tables: Suppliers, Debit Notes, Credit Notes, Daily Expenses, Work Orders
 -- =====================================================
 -- IMPORTANT: Review all queries before executing on live database
 -- =====================================================
+
+-- =====================================================
+-- 0. WORK ORDERS - per_bag_weight COLUMN
+-- =====================================================
+-- If you have per_kg_weight and want to rename to per_bag_weight:
+-- ALTER TABLE work_orders CHANGE per_kg_weight per_bag_weight DECIMAL(10,3) NULL;
+
+-- If the column is missing entirely, add per_bag_weight:
+-- ALTER TABLE work_orders ADD COLUMN per_bag_weight DECIMAL(10,3) NULL AFTER quantity_to_produce;
 
 -- =====================================================
 -- 1. DEBIT NOTE ITEMS - DATA CLEANUP

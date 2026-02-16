@@ -64,12 +64,12 @@
     </div>
 
     <div>
-        <label for="per_kg_weight" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Per Kg Weight</label>
-        <input type="number" step="0.001" min="0" name="per_kg_weight" id="per_kg_weight"
-               value="{{ old('per_kg_weight', $editing && $workOrder->per_kg_weight !== null ? $workOrder->per_kg_weight : '') }}"
+        <label for="per_bag_weight" style="display: block; margin-bottom: 6px; font-weight: 600; color: #333;">Per Bag Weight</label>
+        <input type="number" step="0.001" min="0" name="per_bag_weight" id="per_bag_weight"
+               value="{{ old('per_bag_weight', $editing && $workOrder->per_bag_weight !== null ? $workOrder->per_bag_weight : '') }}"
                style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-        <small style="color: #666; font-size: 12px; display: block; margin-top: 4px;">Optional: specify weight per kg for this work order.</small>
-        @error('per_kg_weight')
+        <small style="color: #666; font-size: 12px; display: block; margin-top: 4px;">Optional: specify weight per bag for this work order.</small>
+        @error('per_bag_weight')
             <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
         @enderror
     </div>
