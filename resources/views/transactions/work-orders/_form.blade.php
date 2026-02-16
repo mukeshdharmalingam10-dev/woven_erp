@@ -72,7 +72,7 @@
         @error('per_bag_weight')
             <div style="color: red; font-size: 13px; margin-top: 4px;">{{ $message }}</div>
         @enderror
-    </div>
+    </div> 
 
     @if($editing)
     <div>
